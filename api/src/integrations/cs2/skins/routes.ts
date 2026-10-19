@@ -35,8 +35,12 @@ import {
   parseRewards,
 } from './skinService';
 import type { Untrusted } from '../../../utils/untrusted';
+import freeRoutes from './freeRoutes';
 
 const router = Router();
+
+// Fork: free skin mode (pick any finish, float, pattern, StatTrak, name tag, agents).
+router.use(freeRoutes);
 
 function fail(res: Response, error: unknown, what: string) {
   if (error instanceof SkinError)
@@ -78,7 +82,7 @@ async function playerOrStop(req: Request, res: Response): Promise<string | null>
  *     tags: [Skins]
  *     summary: Whether virtual skins are on (public)
  *     responses:
- *       200: { description: "{ enabled }" }
+ *       200: { description: "{ enabled, freeMode, tradeUp }" }
  */
 router.get('/status', async (_req, res) => {
   try {
@@ -86,6 +90,7 @@ router.get('/status', async (_req, res) => {
     return res.json({
       success: true,
       enabled: config.enabled,
+      freeMode: config.enabled && config.freeMode,
       tradeUp: config.enabled && config.tradeUp.enabled ? { count: config.tradeUp.count } : null,
     });
   } catch (error) {
