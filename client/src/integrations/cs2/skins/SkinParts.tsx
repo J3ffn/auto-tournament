@@ -615,6 +615,7 @@ export function InspectSkinDialog({
                 ...(skin.stattrak !== null && skin.stattrak !== undefined
                   ? [[t('skins.stattrakKills'), String(skin.stattrak)]]
                   : []),
+                ...(skin.nametag ? [[t('skins.free.nametag'), `“${skin.nametag}”`]] : []),
                 ...(data.odds
                   ? [
                       [t('skins.drops.rarityOdds'), formatOdds(data.odds.rarity)],
@@ -665,7 +666,9 @@ export function InspectSkinDialog({
                         ? t('skins.tradeUp.origin')
                         : skin.source === 'admin'
                           ? t('skins.givenByAdmin')
-                          : t('skins.wonMatchmaking')}
+                          : skin.source === 'free'
+                            ? t('skins.free.sourceLabel')
+                            : t('skins.wonMatchmaking')}
                 </Typography>
                 <Typography sx={{ fontSize: '0.8125rem', color: color.ink2 }}>
                   {[skin.sourceLabel ? sourceLabel(skin.sourceLabel) : null, date]

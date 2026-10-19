@@ -91,3 +91,6 @@ ci-prebuilt/
 
 # Generated when the image is built (scripts/third-party-notices.mjs)
 /THIRD_PARTY_NOTICES.md
+
+# Fork: free skins module packages
+dist-fork/

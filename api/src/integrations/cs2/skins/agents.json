@@ -1,0 +1,443 @@
+[
+  {
+    "team": 2,
+    "name": "'Medium Rare' Crasswater | Guerrilla Warfare",
+    "model": "agents/models/tm_jungle_raider/tm_jungle_raider_variantb2.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZz18yVX6s28aa1pJeKsGGaCyO94pOM7AXGwwBxz5G2Gy9qqdy_GaARyDcF2FrUK50LuwICzM-3i4wzZj4NFyn_gznQeAuFLUp4",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 2,
+    "name": "'The Doctor' Romanov | Sabre",
+    "model": "agents/models/tm_balkan/tm_balkan_varianth.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZTh8Sla4c24abZkIf6HBinGlu0k4bU7Givnk01352yByd_6IHLGZgElDpchEbNZtxewx9zhNr_m-UWA3HK9C48i",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 2,
+    "name": "Crasswater The Forgotten | Guerrilla Warfare",
+    "model": "agents/models/tm_jungle_raider/tm_jungle_raider_variantb.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZz18yVX6s28aa1pJeKsGGaCyO94pOMnTH-3kU8m5D6Gz4qodX2SbAdxCJUlROAD5kS7w4WyYuyz4QOMj94QmzK-0H2dcvV-Fg",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 2,
+    "name": "Sir Bloody Darryl Royale | The Professionals",
+    "model": "agents/models/tm_professional/tm_professional_varf3.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3WWkqAg6ec5THznk05-4jvXntz7JHjBOwYkDZAhQrZfskXuw9HiN-m3tAfclcsbmmRuIYiQ",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 2,
+    "name": "Sir Bloody Loudmouth Darryl | The Professionals",
+    "model": "agents/models/tm_professional/tm_professional_varf4.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3WWlaAlsrk9G3C1xkl-5T_Vyo6odSmWPFRzC5FyEONfuhK9lYG2Nem04gPclcsbmsgBcrK7",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 2,
+    "name": "Sir Bloody Miami Darryl | The Professionals",
+    "model": "agents/models/tm_professional/tm_professional_varf.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3WWj-gn47Q-GH7qxkhwsWjWyN6pJynGZld0CJR3QOdbtRa4lIGxY7_g7wfAy9USZdxTISw",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 2,
+    "name": "Sir Bloody Silent Darryl | The Professionals",
+    "model": "agents/models/tm_professional/tm_professional_varf1.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3WWkKAv5OVoGyjilkR14mzcmdz4JHiXaQQiDZAkTO5euxW-loC1Zbm25wSPlcsbmmtPiU71",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 2,
+    "name": "Sir Bloody Skullhead Darryl | The Professionals",
+    "model": "agents/models/tm_professional/tm_professional_varf2.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3WWk6Ajs7FtHni2lh5_smmDnNj8I3yVOFJyW5J5FLRYtxO6l9GxZu7h4AeIlcsbmjPHDP8B",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 2,
+    "name": "The Elite Mr. Muhlik | Elite Crew",
+    "model": "agents/models/tm_leet/tm_leet_variantf.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZrl-DZk-fO8YaVjNPbdDTORmbsl5LQ-F3DlwE1y6jnWytqucnmfawMmWJEkFuQJskKwmoexM_SiuVLDZa0BGw",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 2,
+    "name": "Vypa Sista of the Revolution | Guerrilla Warfare",
+    "model": "agents/models/tm_jungle_raider/tm_jungle_raider_variante.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZz18yVX6s28aa1pJeKsGGaCyO94pOQnGH3rzRt_4miDmNb8dinBPwF2ApJ2FuRe5hW4xNfjZbzk5gDajI8QzTK-0H0XsiWpag",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 2,
+    "name": "Arno The Overgrown | Guerrilla Warfare",
+    "model": "agents/models/tm_jungle_raider/tm_jungle_raider_variantc.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZz18yVX6s28aa1pJeKsGGaCyO94pOInTSrkwRlx6z7Xwtn9In6eZwQnDsd5TOYDsxi9xNe2N7-0slHe2NlDmzK-0H38E8rQtQ",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 2,
+    "name": "Blackwolf | Sabre",
+    "model": "agents/models/tm_balkan/tm_balkan_variantj.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZTh8Sla4c24abZkIf6HBCnIxLxw5uI9HXHklh4m4TjXw4qsIHPFOFByCMAmTbQJ4Ua4kdfhN7u3-UWA3G22ywJ7",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 2,
+    "name": "Bloody Darryl The Strapped | The Professionals",
+    "model": "agents/models/tm_professional/tm_professional_varf5.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3WWlKAhtLhqHXDilxgm4z7dztesJH2SbgApCMchFrQNsRSxw4XhYeK0swbYlcsbmucxTysR",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 2,
+    "name": "Elite Trapper Solman | Guerrilla Warfare",
+    "model": "agents/models/tm_jungle_raider/tm_jungle_raider_varianta.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZz18yVX6s28aa1pJeKsGGaCyO94pOAnSSjqwkUi5W-ByYz4cnyVZlIgDJciQu8LsxXumta0Nrjh4gTf2NpGnzK-0H1TOhLF6Q",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 2,
+    "name": "Number K | The Professionals",
+    "model": "agents/models/tm_professional/tm_professional_vari.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3WZj7wuseM-GnG2lh4h5m2EmderdX7DaA9zW8N2QuBbtBG-mty2N-i0tADAy9USaSI87As",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 2,
+    "name": "Prof. Shahmat | Elite Crew",
+    "model": "agents/models/tm_leet/tm_leet_varianti.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZrl-DZk-fO8YaVjNPndCDCTk74k4LA5GX_mxR4mtWSDmYz9cy6ROAQoCMB1E-AK5BG9wNziNPSiuVKTaodKjw",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 2,
+    "name": "Rezan The Ready | Sabre",
+    "model": "agents/models/tm_balkan/tm_balkan_variantg.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZTh8Sla4c24abZkIf6HCSnCk79w47BqGSvjxEt3tjuDmYyocy2UbgRzXJIiEeULsRXqmtCxYrm2-UWA3FAo97Sl",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 2,
+    "name": "Rezan the Redshirt | Sabre",
+    "model": "agents/models/tm_balkan/tm_balkan_variantk.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZTh8Sla4c24abZkIf6HBSnClrkg5eBoGSvikU915G_dyo2vcimTOFAoX8cmR7MDsBS_m4G2Zui2-UWA3FkeyBmz",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 2,
+    "name": "Safecracker Voltzmann | The Professionals",
+    "model": "agents/models/tm_professional/tm_professional_varg.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3WXj7536LVoFivmkEghsWXQmd37IniRPwUoCMFwEeAItxCwkdXvNr624wXAy9USEc8H9qQ",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 2,
+    "name": "Col. Mangos Dabisi | Guerrilla Warfare",
+    "model": "agents/models/tm_jungle_raider/tm_jungle_raider_variantd.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZz18yVX6s28aa1pJeKsGGaCyO94pOUnSXy3w0gjt2rVy42rcirFO1UgDpElTOYDtRexxtS1Ybmw4gzb3YlAyjK-0H0x0ZHEbw",
+    "color": "#8847ff"
+  },
+  {
+    "team": 2,
+    "name": "Dragomir | Sabre",
+    "model": "agents/models/tm_balkan/tm_balkan_variantf.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZTh8Sla4c24abZkIf6HCCnExbdz5uIxF3jiwUp1sD-Gyon6cniQb1dyWMQjTbQMs0G9w4KzZLi0-UWA3DCqT-14",
+    "color": "#8847ff"
+  },
+  {
+    "team": 2,
+    "name": "Getaway Sally | The Professionals",
+    "model": "agents/models/tm_professional/tm_professional_varj.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3Waj-0h4LM5H3jjzR9-4zmHzIuucXOWaAEkCsR5FrFcsEG5wNGzNeng71TAy9UScc7Ksy8",
+    "color": "#8847ff"
+  },
+  {
+    "team": 2,
+    "name": "Little Kev | The Professionals",
+    "model": "agents/models/tm_professional/tm_professional_varh.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3WYj74g6LVvGyznlB8itm7XyY2od3LBOA4jWcByEe4J40S_kYfmYurm41fAy9USidzQq1U",
+    "color": "#8847ff"
+  },
+  {
+    "team": 2,
+    "name": "Maximus | Sabre",
+    "model": "agents/models/tm_balkan/tm_balkan_varianti.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZTh8Sla4c24abZkIf6HBynEl7wg5bc4Tnm1k0V34GSGntupdCnCbwEiW8ElTOMCsUTtm4XmNOng-UWA3F74ACBx",
+    "color": "#8847ff"
+  },
+  {
+    "team": 2,
+    "name": "Osiris | Elite Crew",
+    "model": "agents/models/tm_leet/tm_leet_varianth.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZrl-DZk-fO8YaVjNPjdDDXEk7p35uAxTHDqxRh25DuDzI2sdC7BOwZ1W5BwRe4O4BfsktKxZPSiuVIisGC3vg",
+    "color": "#8847ff"
+  },
+  {
+    "team": 2,
+    "name": "Slingshot | Phoenix",
+    "model": "agents/models/tm_phoenix/tm_phoenix_variantg.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYbo8idV5uqRfqV_KfGdGmDelb8n4LAwHHqxxU8jtjndztf7dC_EOFQnCpV3QrUCshG4wYHjNeu25hue1dzy4v_RuA",
+    "color": "#8847ff"
+  },
+  {
+    "team": 2,
+    "name": "Trapper | Guerrilla Warfare",
+    "model": "agents/models/tm_jungle_raider/tm_jungle_raider_variantf2.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZz18yVX6s28aa1pJeKsGGaCyO94pOc7ASi2zRwj5TuEz9yreHLBbAInW5YlEbQNsxCxkdXgNe-25gTaj9lNznngznQecRJv7X0",
+    "color": "#8847ff"
+  },
+  {
+    "team": 2,
+    "name": "Dragomir | Sabre Footsoldier",
+    "model": "agents/models/tm_balkan/tm_balkan_variantl.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZTh8Sla4c24abZkIf6HAimWlb9w57hoGHrmlB9_4j-Gm439d3rCPAEiDZNwQrUD40K9m9GzNu-0-UWA3CLCQ0Kd",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 2,
+    "name": "Enforcer | Phoenix",
+    "model": "agents/models/tm_phoenix/tm_phoenix_variantf.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYbo8idV5uqRfqV_KfGdGmHexbZ3tLM9G3jhzRt-5WqEydaqdS-QPAMjX8NxFLRY5hftx9XkNOm35xue1dyPr1iSWw",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 2,
+    "name": "Ground Rebel  | Elite Crew",
+    "model": "agents/models/tm_leet/tm_leet_variantg.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZrl-DZk-fO8YaVjNPfdVmHAxOgj4uNtGyqxxRki52jSyoqseHiRalRyWcdzE-APuxK8xNbmYvSiuVLQnSKAnQ",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 2,
+    "name": "Jungle Rebel | Elite Crew",
+    "model": "agents/models/tm_leet/tm_leet_variantj.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZrl-DZk-fO8YaVjNPrdWDWRlrch5LU6H3-wzEoj5Dncn9evcXuTOAZyW5p4QuJc50TqwdPlPvSiuVKlREwxsg",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 2,
+    "name": "Soldier | Phoenix",
+    "model": "agents/models/tm_phoenix/tm_phoenix_varianth.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYbo8idV5uqRfqV_KfGdGm_elrd05uUwSn-wxB5_52zRyd39cHuWOgEmW5R3QbQM5xi4mtayMunq5hue1dxmxRjA3w",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 2,
+    "name": "Street Soldier | Phoenix",
+    "model": "agents/models/tm_phoenix/tm_phoenix_varianti.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYbo8idV5uqRfqV_KfGdGm7ex78n4LU_GSrmzBxx4Dncntn_InmWPwcmCccjTO8L50awwdC2N-uwsxue1dwGHFtFrw",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 2,
+    "name": "Trapper Aggressor | Guerrilla Warfare",
+    "model": "agents/models/tm_jungle_raider/tm_jungle_raider_variantf.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZz18yVX6s28aa1pJeKsGGaCyO94pOcnS3u1xEp042mAz9n_IinBPQckCpAkR7UC40TtltKxMu3h4gWLjI9AzzK-0H3_4J31MA",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 3,
+    "name": "Chef d'Escadron Rouchard | Gendarmerie Nationale",
+    "model": "agents/models/ctm_gendarmerie/ctm_gendarmerie_variantc.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nn-Cxf7uCjbbZkJc-FD3WZwOBis69vSijgx01-4WvUytireS2SalVyDpoiR-MN4Rfsw4HnMem2tgbc3d5B02yg2bQY5H89",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 3,
+    "name": "Cmdr. Davida 'Goggles' Fernandez | SEAL Frogman",
+    "model": "agents/models/ctm_diver/ctm_diver_varianta.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nk9DRe_c24abZkIf6HDymVwLhz4rJsHH6xzEQk5zyDydaudi6XZwJxDJUkRrIItULpw4W1Ybvk-UWA3FCleMc7",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 3,
+    "name": "Cmdr. Frank 'Wet Sox' Baroud | SEAL Frogman",
+    "model": "agents/models/ctm_diver/ctm_diver_variantb.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nk9DRe_c24abZkIf6HDCmSkrh35uRvHXG1lkp_6zjUzY2gcimRP1N2XJJxTOYKuhDsxNC2YePi-UWA3IGWyCLX",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 3,
+    "name": "Cmdr. Mae 'Dead Cold' Jamison | SWAT",
+    "model": "agents/models/ctm_swat/ctm_swat_variante.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6iNP0OSveq1sLuSWQDGVlbx34-Q8HC3nk012tWzTzY79JHiQOgYpW8B3EeYN40HtxtzlNuz8p1uJLMIs6sE",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 3,
+    "name": "Lt. Commander Ricksaw | NSWC SEAL",
+    "model": "agents/models/ctm_st6/ctm_st6_varianti.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6XRk-fO8YaVjNPndVz-Ul74hsbNoHi21kUly6mrQzNagcijBPQEnCsciTOdY4Rm6m4XvN_SiuVLIl2LQXw",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 3,
+    "name": "Special Agent Ava | FBI",
+    "model": "agents/models/ctm_fbi/ctm_fbi_variantb.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nm_ytk-fO8YaVjNPLdXz6TkLdw5LY4Hnmwl0wktj7dn4r9I3OWPFApC5F1QeAO5xi4lIDiM_SiuVKk3V4ZcQ",
+    "color": "#eb4b4b"
+  },
+  {
+    "team": 3,
+    "name": "'Two Times' McCoy | TACP Cavalry",
+    "model": "agents/models/ctm_st6/ctm_st6_variantl.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6XRk-fO8YaVjNPzdCGbJxb1zs-JvGCrql0h3tm7cyov_JS-XblImDcAhQe8OtBK4k4bgZPSiuVIHzmbjrQ",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 3,
+    "name": "'Two Times' McCoy | USAF TACP",
+    "model": "agents/models/ctm_st6/ctm_st6_variantm.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6XRk-fO8YaVjNP3dDDLHl7kks7U4Gi2xkUoj42XXntypcHyQO1J0DsZzFuAJsBW4kNPlN_SiuVKK_o8s4A",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 3,
+    "name": "1st Lieutenant Farlow | SWAT",
+    "model": "agents/models/ctm_swat/ctm_swat_variantf.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6iNP0OSveq1sLuSVQGLFx7h0tbU6GHG1lERz62WEm9j6cimebgB0WZd4Ee4Ks0a-lNbjZrj8p1uJLRQDiME",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 3,
+    "name": "Chem-Haz Capitaine | Gendarmerie Nationale",
+    "model": "agents/models/ctm_gendarmerie/ctm_gendarmerie_variantb.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nn-Cxf7uCjbbZkJc-FD3WZwOBisq9tGnnhkxt0sTjcwtyrcnqXO1AgDZJyQbEMsxbqwIayZrnhswHfg4gU02yg2bd7mpZ0",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 3,
+    "name": "Lieutenant Rex Krikey | SEAL Frogman",
+    "model": "agents/models/ctm_diver/ctm_diver_variantc.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nk9DRe_c24abZkIf6HDSmUxbd05bIxH3vqzRgj4GXTm4qtJXPGbg8oXpt2QeVYs0TpkdDmMuPq-UWA3P4QMOVd",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 3,
+    "name": "Michael Syfers  | FBI Sniper",
+    "model": "agents/models/ctm_fbi/ctm_fbi_varianth.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nm_ytk-fO8YaVjNPjdXjWRkegi57FoHyrglkh-62ndz4yrIimfOFRxCZQmQeQOsEK9wNfnYvSiuVJ9Bmql3Q",
+    "color": "#d32ce6"
+  },
+  {
+    "team": 3,
+    "name": "'Blueberries' Buckshot | NSWC SEAL",
+    "model": "agents/models/ctm_st6/ctm_st6_variantj.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6XRk-fO8YaVjNPrdXWLElL5ytbBsTXrqzUxzsWmHzN-gI3-TbwQmC5pzQLELsUbrx9bmP_SiuVJe8Pfo4Q",
+    "color": "#8847ff"
+  },
+  {
+    "team": 3,
+    "name": "Buckshot | NSWC SEAL",
+    "model": "agents/models/ctm_st6/ctm_st6_variantg.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6XRk-fO8YaVjNPfdCzfBx7gl5LQ-GnrkkR4l4DyDzIv8cnKXaQ4jXsQjEOcJ4RHuxNTuMPSiuVIYxifJkQ",
+    "color": "#8847ff"
+  },
+  {
+    "team": 3,
+    "name": "John 'Van Healen' Kask | SWAT",
+    "model": "agents/models/ctm_swat/ctm_swat_variantg.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6iNP0OSveq1sLuSUQDLIle0jtOM-SXm2xBkjsW_dyImhc3iWOgcmAsR0TLVe4BjrkIWzN-P8p1uJ4p5BSY8",
+    "color": "#8847ff"
+  },
+  {
+    "team": 3,
+    "name": "Lieutenant 'Tree Hugger' Farlow | SWAT",
+    "model": "agents/models/ctm_swat/ctm_swat_variantk.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6iNP0OSveq1sLuSYQDDAk75w4bU7FivkkBsj52vWz9f8cCqTbVN0W5R1ELJYukWxkdXmZOr8p1uJJ_LT_Tg",
+    "color": "#8847ff"
+  },
+  {
+    "team": 3,
+    "name": "Markus Delrow | FBI HRT",
+    "model": "agents/models/ctm_fbi/ctm_fbi_variantg.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nm_ytk-fO8YaVjNPfdWT7Dx7dy5OJtGnDhkE5xtj6Hyd6veXjEbVUnW8YiRrVeuhTtk4fvY_SiuVKEkIDFLQ",
+    "color": "#8847ff"
+  },
+  {
+    "team": 3,
+    "name": "Officer Jacques Beltram | Gendarmerie Nationale",
+    "model": "agents/models/ctm_gendarmerie/ctm_gendarmerie_variante.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nn-Cxf7uCjbbZkJc-FD3WZwOBita87GCuxzBwl5jjVyNyveXvCbgQhCsN3EOACsBOwktGyYrnn5FOI3okT02yg2Q7tnUpK",
+    "color": "#8847ff"
+  },
+  {
+    "team": 3,
+    "name": "Sergeant Bombson | SWAT",
+    "model": "agents/models/ctm_swat/ctm_swat_varianti.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6iNP0OSveq1sLuSaQD6Umbp15-RtHX21kxl-sG-Gy9f6ci2XPA8lDMAiTbJc5BfuwNXgYbn8p1uJ3rbO8bk",
+    "color": "#8847ff"
+  },
+  {
+    "team": 3,
+    "name": "Sous-Lieutenant Medic | Gendarmerie Nationale",
+    "model": "agents/models/ctm_gendarmerie/ctm_gendarmerie_varianta.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nn-Cxf7uCjbbZkJc-FD3WZwOBisa9qTnjhxBwk5D-Ano79cXnGbgYmDJJ2FO4MtxK-l9HnZb_h5Qba3d5N02yg2UOShGfb",
+    "color": "#8847ff"
+  },
+  {
+    "team": 3,
+    "name": "3rd Commando Company | KSK",
+    "model": "agents/models/ctm_st6/ctm_st6_variantk.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6XRk-fO8YaVjNPvdWTbJwOsm4rI4GnDjx0t3sWWHw934IH_BO1UnWZd1EO8K5kK4l4fgMvSiuVLu5GcAvQ",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 3,
+    "name": "Aspirant | Gendarmerie Nationale",
+    "model": "agents/models/ctm_gendarmerie/ctm_gendarmerie_variantd.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nn-Cxf7uCjbbZkJc-FD3WZwOBitK8-HH22w0Ul42mAw4r_eSnBPQB0DZp0FOBY4RPsw4a2PrzhtgDdjt5D02yg2f2sw1lc",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 3,
+    "name": "B Squadron Officer | SAS",
+    "model": "agents/models/ctm_sas/ctm_sas_variantf.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz_DFk-fO8YaVjNPbdXmTGk-hw4rlvGSzjx0tz6jnWwo2odHnDblIjCcZwFu4NsBexkYexMvSiuVIb0S_y2g",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 3,
+    "name": "Bio-Haz Specialist | SWAT",
+    "model": "agents/models/ctm_swat/ctm_swat_varianth.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6iNP0OSveq1sLuSbQDPGkO0i4bE4THq1xRh3sjuEz9muJX7EZlIiC8RyQbIPsBPtk9fmNrj8p1uJwRLd8H0",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 3,
+    "name": "Chem-Haz Specialist | SWAT",
+    "model": "agents/models/ctm_swat/ctm_swat_variantj.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6iNP0OSveq1sLuSZQGKRmOpyseJsF3rkzR4ht2_TwtugcH7DbAQgW5VyFLIDuxnqmtPiNb78p1uJZinYneA",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 3,
+    "name": "D Squadron Officer | NZSAS",
+    "model": "agents/models/ctm_sas/ctm_sas_variantg.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz_DFk-fO8YaVjNPfdWDDDxeokseNoTX-1k0R-smSDz4qqcHieZlUhA5QkRuIMu0KwwdDmYfSiuVJoTILK3g",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 3,
+    "name": "Operator | FBI SWAT",
+    "model": "agents/models/ctm_fbi/ctm_fbi_variantf.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nm_ytk-fO8YaVjNPbdCjfAkbcl5LM6S3jkxUsj42TQzdf7JH_Caw5zDMMlEOAIt0Hqk9bmY_SiuVKnm4HYYQ",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 3,
+    "name": "Primeiro Tenente | Brazilian 1st Battalion",
+    "model": "agents/models/ctm_st6/ctm_st6_variantn.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6XRk-fO8YaVjNP7dV2bFlesvtbM_Sn7gx010tTncmdn7ICqePQ4mWMB5EeALtRS7w4XuP_SiuVLSDPMGxQ",
+    "color": "#4b69ff"
+  },
+  {
+    "team": 3,
+    "name": "Seal Team 6 Soldier | NSWC SEAL",
+    "model": "agents/models/ctm_st6/ctm_st6_variante.vmdl",
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6XRk-fO8YaVjNPXdXDHBxLZz4bI-Fn-yxhwhsjyDyNepcSjEbgQmApclFOMNthbslNKyPvSiuVLpMkmXWg",
+    "color": "#4b69ff"
+  }
+]
