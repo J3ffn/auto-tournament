@@ -90,6 +90,8 @@ interface Config {
   rewards: Reward[];
   tradeUp?: { enabled: boolean; count: number };
   statTrakChance?: number;
+  /** Fork: free mode (players pick any skin, float, pattern, StatTrak, name tag and agents). */
+  freeMode?: boolean;
 }
 
 interface CatalogSkin {
@@ -840,6 +842,25 @@ export function SkinsAdminPage() {
           }
           tone={stats?.rarest ? rarityColor[stats.rarest.rarity] : color.muted}
           sub={stats?.rarest?.owner ?? ''}
+        />
+      </Box>
+
+      <Box
+        data-testid="skins-free-mode"
+        sx={{
+          p: 2,
+          borderRadius: radii.lg,
+          border: `1px solid ${config.freeMode ? color.pick : color.rule}`,
+          bgcolor: config.freeMode ? withAlpha(color.pick, 0.08) : color.paper2,
+          opacity: config.enabled ? 1 : 0.55,
+        }}
+      >
+        <SwitchRow
+          label={t('skins.free.adminLabel')}
+          help={t('skins.free.adminHelp')}
+          checked={config.freeMode === true}
+          onChange={(e) => set({ freeMode: e.target.checked })}
+          data-testid="skins-free-mode-switch"
         />
       </Box>
 

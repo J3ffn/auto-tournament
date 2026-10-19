@@ -17,10 +17,13 @@ export interface OwnedSkin {
   slot: string;
   float: number;
   pattern: number;
-  source: 'matchmaking' | 'tournament' | 'admin' | 'level' | 'tradeup';
+  /** `free`: picked from the catalogue in free mode (fork). */
+  source: 'matchmaking' | 'tournament' | 'admin' | 'level' | 'tradeup' | 'free';
   sourceLabel: string | null;
   sourceRef: string | null;
   place: number | null;
+  /** The name tag (free mode), or null. */
+  nametag?: string | null;
   createdAt: number;
   seen: boolean;
   equipped: boolean;

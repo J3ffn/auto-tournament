@@ -1,0 +1,33 @@
+# Fork (free skin mode): build the CS2 module package by hand.
+# Actions → "Fork: free skins module" → Run workflow, with the version
+# (e.g. 3.0.0-beta.177.free.1). The package is attached to the run as an artifact.
+name: 'Fork: free skins module'
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Module version: the platform release plus .free.N (e.g. 3.0.0-beta.177.free.1)'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - name: Build the package
+        env:
+          VERSION: ${{ inputs.version }}
+        run: bash scripts/fork/build-free-skins.sh "$VERSION" dist-fork
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cs2-${{ inputs.version }}
+          path: dist-fork/*.tar.gz
