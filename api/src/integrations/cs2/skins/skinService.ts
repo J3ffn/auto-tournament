@@ -27,6 +27,7 @@ import {
 import { WEAPON_DEFINDEX } from './skinDefindex';
 import { prefetchSkinImages } from '../routes/images';
 import { knifeAndGlovePrices, priceFor, priceKey, rarityIndexByPrice } from './skinPrices';
+import { agentsOf, ensureFreeSkinsSchema } from './freeSchema';
 
 /** Full-size skin pictures, served by the platform (routes/images.ts). */
 export const SKIN_IMAGES_BASE = '/api/game/cs2/img/skins';
@@ -252,6 +253,12 @@ export interface SkinsConfig {
   repeatOpponentCut: boolean;
   /** With the scaler on, keep one Skin tryout server (fleet/autoscale/tryoutKeeper.ts). Off by default: it takes a license seat. */
   tryoutServer: boolean;
+  /**
+   * Fork: free mode. Every player can pick any catalogue skin (and its float,
+   * pattern, StatTrak and name tag) and an agent per side, instead of only the
+   * ones they won (./freeMode.ts). Drops and rewards keep working alongside.
+   */
+  freeMode: boolean;
 }
 
 /** A reward list as stored (site config or a tournament's own): bad entries dropped; null when not a list. */
@@ -308,6 +315,7 @@ export const DEFAULT_CONFIG: SkinsConfig = {
   statTrakChance: 10,
   repeatOpponentCut: true,
   tryoutServer: false,
+  freeMode: false,
 };
 
 /** How many skins a trade-up may take: CS2's contract is ten; five by default here. */
@@ -377,10 +385,13 @@ export interface OwnedSkin {
   slot: string;
   float: number;
   pattern: number;
-  source: 'matchmaking' | 'tournament' | 'admin' | 'level' | 'tradeup';
+  /** `free`: picked from the catalogue in free mode (fork). */
+  source: 'matchmaking' | 'tournament' | 'admin' | 'level' | 'tradeup' | 'free';
   sourceLabel: string | null;
   sourceRef: string | null;
   place: number | null;
+  /** The name tag (free mode), or null. */
+  nametag: string | null;
   /** A phase of a multi-phase finish ('Sapphire', 'Phase 2'), or null. */
   variant: string | null;
   createdAt: number;
@@ -412,6 +423,7 @@ interface SkinRow {
   created_at: number;
   seen: boolean;
   stattrak?: number | null;
+  nametag?: string | null;
 }
 
 /** A loadout side: 0 both, 2 T, 3 CT (CS2's team numbers). */
@@ -539,6 +551,7 @@ function toRow(row: SkinRow, equipped: Map<number, LoadoutTeam[]> | Set<number>)
     sourceLabel: row.source_label,
     sourceRef: row.source_ref,
     place: row.place,
+    nametag: row.nametag ?? null,
     variant: row.variant ?? null,
     createdAt: row.created_at,
     seen: Boolean(row.seen),
@@ -591,6 +604,7 @@ function normalizeConfig(raw: Partial<SkinsConfig>): SkinsConfig {
     levelUpDrops: raw.levelUpDrops !== false,
     repeatOpponentCut: raw.repeatOpponentCut !== false,
     tryoutServer: raw.tryoutServer === true,
+    freeMode: raw.freeMode === true,
     rarityWeights: weights,
     tournamentRewards: raw.tournamentRewards !== false,
     rewards,
@@ -658,6 +672,8 @@ export type DropTarget =
 export interface LoadoutRow {
   /** The StatTrak count, or null for a plain skin. */
   stattrak?: number | null;
+  /** The name tag (free mode), or null. */
+  nametag?: string | null;
   weapon: string;
   paint_kit: number;
   float_value: number;
@@ -673,10 +689,13 @@ export interface LoadoutPayload {
     paint: number;
     wear: number;
     seed: number;
+    nametag?: string;
     stattrak?: number;
   }>;
   knife?: Array<{ team: LoadoutTeam; defindex: number }>;
   gloves?: Array<{ team: LoadoutTeam; defindex: number }>;
+  /** The agent (player model) per side: free mode (fork). */
+  agents?: Array<{ team: 2 | 3; model: string }>;
 }
 
 /**
@@ -684,7 +703,10 @@ export interface LoadoutPayload {
  * side, and the knife and gloves named per side so the plugin swaps them in.
  * Null with nothing it can paint.
  */
-export function loadoutPayload(rows: LoadoutRow[]): LoadoutPayload | null {
+export function loadoutPayload(
+  rows: LoadoutRow[],
+  agents: Array<{ team: 2 | 3; model: string }> = []
+): LoadoutPayload | null {
   // One row per side: the plugin uses a side's own (2 T, 3 CT) over "both" (0).
   const paints: LoadoutPayload['paints'] = [];
   const knife: Array<{ team: LoadoutTeam; defindex: number }> = [];
@@ -699,6 +721,7 @@ export function loadoutPayload(rows: LoadoutRow[]): LoadoutPayload | null {
       paint: row.paint_kit,
       wear: Math.max(0, Math.min(1, Number(row.float_value))),
       seed: Math.max(0, Math.min(1000, row.pattern)),
+      ...(row.nametag ? { nametag: row.nametag.slice(0, 160) } : {}),
       ...(row.stattrak === null || row.stattrak === undefined
         ? {}
         : { stattrak: Math.max(0, Number(row.stattrak)) }),
@@ -706,8 +729,13 @@ export function loadoutPayload(rows: LoadoutRow[]): LoadoutPayload | null {
     if (row.slot === 'knife') knife.push({ team, defindex });
     if (row.slot === 'gloves') gloves.push({ team, defindex });
   }
-  if (!paints.length) return null;
-  return { paints, ...(knife.length ? { knife } : {}), ...(gloves.length ? { gloves } : {}) };
+  if (!paints.length && !agents.length) return null;
+  return {
+    paints,
+    ...(knife.length ? { knife } : {}),
+    ...(gloves.length ? { gloves } : {}),
+    ...(agents.length ? { agents } : {}),
+  };
 }
 
 export const skinService = {
@@ -1707,35 +1735,20 @@ export const skinService = {
    * named, so the plugin swaps them in). Null without an account, while skins
    * are off, or with nothing equipped.
    */
-  async loadoutItems(steamId: string): Promise<{
-    paints: Array<{
-      team: LoadoutTeam;
-      defindex: number;
-      paint: number;
-      wear: number;
-      seed: number;
-    }>;
-    knife?: Array<{ team: LoadoutTeam; defindex: number }>;
-    gloves?: Array<{ team: LoadoutTeam; defindex: number }>;
-  } | null> {
-    if (!(await this.config()).enabled) return null;
+  async loadoutItems(steamId: string): Promise<LoadoutPayload | null> {
+    const config = await this.config();
+    if (!config.enabled) return null;
     const uid = await uidOf(steamId);
     if (!uid) return null;
-    const rows = await db.queryAsync<{
-      weapon: string;
-      paint_kit: number;
-      float_value: number;
-      pattern: number;
-      slot: string;
-      team: number;
-      stattrak: number | null;
-    }>(
-      `SELECT s.weapon, s.paint_kit, s.float_value, s.pattern, s.stattrak, l.slot, l.team
+    // Fork: the name tag column comes with free mode (./freeSchema.ts).
+    const nametag = (await ensureFreeSkinsSchema()) ? 's.nametag' : 'NULL AS nametag';
+    const rows = await db.queryAsync<LoadoutRow>(
+      `SELECT s.weapon, s.paint_kit, s.float_value, s.pattern, s.stattrak, ${nametag}, l.slot, l.team
          FROM cs2_player_loadout l JOIN cs2_player_skins s ON s.id = l.skin_id
         WHERE l.player_uid = ?`,
       [uid]
     );
-    return loadoutPayload(rows);
+    return loadoutPayload(rows, config.freeMode ? await agentsOf(uid) : []);
   },
 
   /** Admin: the numbers at the top of the Skins page. */

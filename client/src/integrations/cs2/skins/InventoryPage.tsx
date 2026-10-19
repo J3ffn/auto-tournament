@@ -22,6 +22,7 @@ import {
   fontDisplay,
   radii,
   dialogPaperSx,
+  SegmentedControl,
 } from '../../../module-sdk';
 import { InspectSkinDialog, SkinCard, SlotTile, VirtualNotice } from './SkinParts';
 import { loadoutSlots, useMySkins, useSkinsEnabled, type OwnedSkin, type Rarity } from './useSkins';
@@ -30,6 +31,10 @@ import { canPick, togglePick } from './tradeUp';
 import { TradeUpPanel } from './TradeUpPanel';
 import { TryoutLink } from './TryoutLink';
 import { skinCategory, type SkinCategory } from './categories';
+import { FreeCatalog } from './FreeCatalog';
+import { FreeAgents } from './FreeAgents';
+import { FreeSkinEditor, type EditorTarget } from './FreeSkinEditor';
+import { ownedCopy } from './freeSkins';
 
 const { color } = tokens;
 const RARITY_ORDER: Rarity[] = [
@@ -83,13 +88,22 @@ export function InventoryPage() {
   const [tradeUpCount, setTradeUpCount] = useState<number | null>(null);
   const [trading, setTrading] = useState(false);
   const [picked, setPicked] = useState<OwnedSkin[]>([]);
+  // Fork: free mode (any finish, set up in the editor; agents per side).
+  const [freeMode, setFreeMode] = useState(false);
+  const [view, setView] = useState<'inventory' | 'catalog'>('inventory');
+  const [catalogGroup, setCatalogGroup] = useState<Filter>('all');
+  const [editing, setEditing] = useState<EditorTarget | null>(null);
 
   useEffect(() => {
     if (!own) return;
     let cancelled = false;
     api
-      .get<{ tradeUp: { count: number } | null }>('/api/skins/status')
-      .then((r) => !cancelled && setTradeUpCount(r.tradeUp?.count ?? null))
+      .get<{ tradeUp: { count: number } | null; freeMode?: boolean }>('/api/skins/status')
+      .then((r) => {
+        if (cancelled) return;
+        setTradeUpCount(r.tradeUp?.count ?? null);
+        setFreeMode(r.freeMode === true);
+      })
       .catch(() => undefined);
     return () => {
       cancelled = true;
@@ -293,6 +307,20 @@ export function InventoryPage() {
                                 return;
                               }
                               const owned = inventory.find((s) => s.slot === slot);
+                              // Free mode: an empty slot opens the skin list on its group.
+                              if (own && freeMode) {
+                                setCatalogGroup(
+                                  slot === 'knife'
+                                    ? 'knives'
+                                    : slot === 'gloves'
+                                      ? 'gloves'
+                                      : owned
+                                        ? category(owned)
+                                        : 'all'
+                                );
+                                setView('catalog');
+                                return;
+                              }
                               setFilter(
                                 owned
                                   ? category(owned)
@@ -312,106 +340,148 @@ export function InventoryPage() {
               })}
             </Box>
 
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: 2,
-              }}
-            >
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                {(
-                  ['all', 'rifles', 'pistols', 'smgs', 'heavy', 'knives', 'gloves'] as Filter[]
-                ).map(chip)}
-              </Box>
-              {own && tradeUpCount !== null && !trading && (
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    setPicked([]);
-                    setTrading(true);
-                  }}
-                  data-testid="trade-up-start"
-                  sx={{ borderRadius: radii.pill }}
-                >
-                  {t('skins.tradeUp.start')}
-                </Button>
-              )}
-              <Select
-                size="small"
-                value={sort}
-                onChange={(e) => setSort(e.target.value as 'rarity' | 'newest')}
-                sx={{ borderRadius: radii.pill, minWidth: 180 }}
-                inputProps={{ 'aria-label': t('skins.sortLabel') }}
-              >
-                <MenuItem value="rarity">{t('skins.sort.rarity')}</MenuItem>
-                <MenuItem value="newest">{t('skins.sort.newest')}</MenuItem>
-              </Select>
-            </Box>
+            {own && freeMode && <FreeAgents />}
 
-            {trading && tradeUpCount !== null && (
-              <TradeUpPanel
-                count={tradeUpCount}
-                picked={picked}
-                onCancel={() => {
-                  setTrading(false);
-                  setPicked([]);
-                }}
-                onDone={(skinId) => {
-                  setTrading(false);
-                  setPicked([]);
-                  void mine.reload();
-                  setInspect(skinId);
-                }}
+            {own && freeMode && (
+              <SegmentedControl
+                label={t('skins.free.view')}
+                value={view}
+                onChange={setView}
+                testId="free-view"
+                options={[
+                  {
+                    value: 'inventory',
+                    label: t('skins.free.mySkins'),
+                    testId: 'free-view-inventory',
+                  },
+                  {
+                    value: 'catalog',
+                    label: t('skins.free.allSkins'),
+                    testId: 'free-view-catalog',
+                  },
+                ]}
               />
             )}
 
-            {shown.length === 0 ? (
-              <Typography sx={{ color: color.ink2 }}>
-                {inventory.length
-                  ? t('skins.noneInFilter')
-                  : own
-                    ? t('skins.emptyOwn')
-                    : t('skins.emptyTheirs')}
-              </Typography>
+            {own && freeMode && view === 'catalog' ? (
+              <FreeCatalog
+                key={catalogGroup}
+                initialGroup={catalogGroup}
+                inventory={inventory}
+                onPick={(skin) =>
+                  setEditing({ kind: 'catalog', skin, existing: ownedCopy(inventory, skin) })
+                }
+              />
             ) : (
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-                  gap: 1.75,
-                }}
-              >
-                {shown.map((skin) => (
-                  <SkinCard
-                    key={skin.id}
-                    skin={skin}
-                    showNew={own}
-                    onEquip={
-                      own
-                        ? (s) =>
-                            // A skin both sides can use asks which side; a one-side weapon toggles.
-                            s.side === null
-                              ? setPicking(s)
-                              : void mine.equip(s, 0).catch(equipFailed)
-                        : undefined
-                    }
-                    onDragSkin={own ? setDragging : undefined}
-                    onInspect={(s) => setInspect(s.id)}
-                    pick={
-                      trading && tradeUpCount !== null
-                        ? {
-                            picked: picked.some((p) => p.id === skin.id),
-                            disabled: !canPick(skin, picked, tradeUpCount),
-                            onToggle: (s) => setPicked((list) => togglePick(s, list, tradeUpCount)),
-                          }
-                        : undefined
-                    }
+              <>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: 2,
+                  }}
+                >
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    {(
+                      ['all', 'rifles', 'pistols', 'smgs', 'heavy', 'knives', 'gloves'] as Filter[]
+                    ).map(chip)}
+                  </Box>
+                  {own && tradeUpCount !== null && !trading && (
+                    <Button
+                      variant="outlined"
+                      onClick={() => {
+                        setPicked([]);
+                        setTrading(true);
+                      }}
+                      data-testid="trade-up-start"
+                      sx={{ borderRadius: radii.pill }}
+                    >
+                      {t('skins.tradeUp.start')}
+                    </Button>
+                  )}
+                  <Select
+                    size="small"
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value as 'rarity' | 'newest')}
+                    sx={{ borderRadius: radii.pill, minWidth: 180 }}
+                    inputProps={{ 'aria-label': t('skins.sortLabel') }}
+                  >
+                    <MenuItem value="rarity">{t('skins.sort.rarity')}</MenuItem>
+                    <MenuItem value="newest">{t('skins.sort.newest')}</MenuItem>
+                  </Select>
+                </Box>
+
+                {trading && tradeUpCount !== null && (
+                  <TradeUpPanel
+                    count={tradeUpCount}
+                    picked={picked}
+                    onCancel={() => {
+                      setTrading(false);
+                      setPicked([]);
+                    }}
+                    onDone={(skinId) => {
+                      setTrading(false);
+                      setPicked([]);
+                      void mine.reload();
+                      setInspect(skinId);
+                    }}
                   />
-                ))}
-              </Box>
+                )}
+
+                {shown.length === 0 ? (
+                  <Typography sx={{ color: color.ink2 }}>
+                    {inventory.length
+                      ? t('skins.noneInFilter')
+                      : own
+                        ? freeMode
+                          ? t('skins.free.emptyOwn')
+                          : t('skins.emptyOwn')
+                        : t('skins.emptyTheirs')}
+                  </Typography>
+                ) : (
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+                      gap: 1.75,
+                    }}
+                  >
+                    {shown.map((skin) => (
+                      <SkinCard
+                        key={skin.id}
+                        skin={skin}
+                        showNew={own}
+                        onEquip={
+                          own
+                            ? (s) =>
+                                // Free mode: the editor (set it up, then equip). Otherwise a skin
+                                // both sides can use asks which side; a one-side weapon toggles.
+                                freeMode
+                                  ? setEditing({ kind: 'owned', skin: s })
+                                  : s.side === null
+                                    ? setPicking(s)
+                                    : void mine.equip(s, 0).catch(equipFailed)
+                            : undefined
+                        }
+                        onDragSkin={own ? setDragging : undefined}
+                        onInspect={(s) => setInspect(s.id)}
+                        pick={
+                          trading && tradeUpCount !== null
+                            ? {
+                                picked: picked.some((p) => p.id === skin.id),
+                                disabled: !canPick(skin, picked, tradeUpCount),
+                                onToggle: (s) =>
+                                  setPicked((list) => togglePick(s, list, tradeUpCount)),
+                              }
+                            : undefined
+                        }
+                      />
+                    ))}
+                  </Box>
+                )}
+              </>
             )}
 
             <ButtonBase
@@ -444,6 +514,21 @@ export function InventoryPage() {
       </Container>
 
       <InspectSkinDialog skinId={inspect} onClose={() => setInspect(null)} />
+      <FreeSkinEditor
+        target={editing}
+        onClose={() => setEditing(null)}
+        onEquipOwned={(skin, team) => mine.equipOn(skin, team)}
+        onTakeOffOwned={async (skin) => {
+          let current = skin;
+          for (const team of [...skin.equippedSides]) {
+            await mine.equip(current, team);
+            current = {
+              ...current,
+              equippedSides: current.equippedSides.filter((x) => x !== team),
+            };
+          }
+        }}
+      />
       {picking && (
         <SidePicker
           skin={inventory.find((x) => x.id === picking.id) ?? picking}
