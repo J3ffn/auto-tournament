@@ -32,7 +32,12 @@ export interface FreeCatalogSkin {
   /** The full-size picture (skinCardUrl() gives the card size). */
   image: string;
   statTrak: boolean;
+  /** A knife model with no finish: its default look (paint kit 0). */
+  vanilla?: boolean;
 }
+
+/** Each slot's default look: `<weapon>`, and `knife:2` / `knife:3` / `gloves:2` / `gloves:3` per side. */
+export type DefaultLooks = Record<string, string>;
 
 export interface FreeAgent {
   team: 2 | 3;
@@ -115,22 +120,27 @@ export async function removeFreeSkin(skinId: number): Promise<void> {
   announceChange();
 }
 
-/** Every finish there is, loaded the first time `active` is true. */
+/** Every finish there is, and each slot's default look, loaded the first time `active` is true. */
 export function useFreeCatalog(active: boolean) {
   const [skins, setSkins] = useState<FreeCatalogSkin[] | null>(null);
+  const [defaults, setDefaults] = useState<DefaultLooks>({});
   const [failed, setFailed] = useState(false);
   useEffect(() => {
     if (!active || skins) return;
     let cancelled = false;
     api
-      .get<{ skins: FreeCatalogSkin[] }>('/api/skins/free/catalog')
-      .then((r) => !cancelled && setSkins(r.skins ?? []))
+      .get<{ skins: FreeCatalogSkin[]; defaults?: DefaultLooks }>('/api/skins/free/catalog')
+      .then((r) => {
+        if (cancelled) return;
+        setSkins(r.skins ?? []);
+        setDefaults(r.defaults ?? {});
+      })
       .catch(() => !cancelled && setFailed(true));
     return () => {
       cancelled = true;
     };
   }, [active, skins]);
-  return { skins, failed };
+  return { skins, defaults, failed };
 }
 
 /** The agents per side, the player's picks, and setting one (null: the game's default). */

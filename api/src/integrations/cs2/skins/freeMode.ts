@@ -14,9 +14,11 @@
 
 import { db } from '../../../config/database';
 import agentsJson from './agents.json';
+import { agentImageUrl, baseImageUrl, hasBaseImage } from './freeImages';
 import { agentsOf, ensureFreeSkinsSchema, withFreeSchema } from './freeSchema';
 import { WEAPON_DEFINDEX } from './skinDefindex';
 import {
+  type CatalogSkin,
   SKIN_IMAGES_BASE,
   SkinError,
   type LoadoutTeam,
@@ -44,9 +46,19 @@ export interface AgentEntry {
   color: string;
 }
 
-export const AGENTS: readonly AgentEntry[] = (agentsJson as AgentEntry[]).filter(
-  (a) => (a.team === 2 || a.team === 3) && a.model.startsWith('agents/models/')
-);
+export const AGENTS: readonly AgentEntry[] = (agentsJson as AgentEntry[])
+  .filter((a) => (a.team === 2 || a.team === 3) && a.model.startsWith('agents/models/'))
+  // Served by the platform (./freeImages.ts), never straight from Steam.
+  .map((a) => ({ ...a, image: agentImageUrl(a.model) }));
+
+/** The name of a knife's default look (a model with no finish) in the catalogue. */
+export const VANILLA = 'Vanilla';
+
+/** What an empty slot shows: the game's default knife, gloves and weapons, per side where they differ. */
+export const DEFAULT_LOOKS = {
+  knife: { 2: 'weapon_knife_t', 3: 'weapon_knife' },
+  gloves: { 2: 't_gloves', 3: 'ct_gloves' },
+} as const;
 
 /** A finish players can pick: the catalogue's, once per weapon and paint kit. */
 export interface FreeCatalogSkin {
@@ -60,6 +72,21 @@ export interface FreeCatalogSkin {
   side: 2 | 3 | null;
   image: string;
   statTrak: boolean;
+  /** A knife model with no finish (paintKit 0): its default look. */
+  vanilla?: boolean;
+}
+
+/** A knife model's default look, as a catalogue entry (paint kit 0), or null for anything else. */
+function vanillaKnife(weapon: string, weaponName: string): CatalogSkin | null {
+  if (slotOf(weapon) !== 'knife' || !WEAPON_DEFINDEX[weapon] || !hasBaseImage(weapon)) return null;
+  return {
+    weapon,
+    weaponName,
+    paintKit: 0,
+    name: VANILLA,
+    rarity: 'ancient',
+    image: baseImageUrl(weapon),
+  };
 }
 
 /** What a player may set on a free skin. Each field is optional: left out, it stays (or is rolled). */
@@ -133,6 +160,40 @@ export const freeMode = {
         statTrak: statTrakCapable(s.weapon),
       });
     }
+    // Every knife model also comes plain: its default look, with no finish.
+    const knives = new Map(
+      out.filter((s) => s.slot === 'knife').map((s) => [s.weapon, s.weaponName])
+    );
+    for (const [weapon, weaponName] of knives) {
+      const plain = vanillaKnife(weapon, weaponName);
+      if (!plain) continue;
+      out.push({
+        weapon,
+        weaponName,
+        paintKit: 0,
+        name: VANILLA,
+        variant: null,
+        rarity: plain.rarity,
+        slot: 'knife',
+        side: null,
+        image: plain.image,
+        statTrak: false,
+        vanilla: true,
+      });
+    }
+    return out;
+  },
+
+  /** The default look of every slot: a weapon's own picture, and the side's stock knife and gloves. */
+  defaults(): Record<string, string> {
+    const out: Record<string, string> = {};
+    for (const weapon of Object.keys(WEAPON_DEFINDEX)) {
+      if (hasBaseImage(weapon)) out[weapon] = baseImageUrl(weapon);
+    }
+    for (const [slot, sides] of Object.entries(DEFAULT_LOOKS)) {
+      out[`${slot}:2`] = baseImageUrl(sides[2]);
+      out[`${slot}:3`] = baseImageUrl(sides[3]);
+    }
     return out;
   },
 
@@ -147,11 +208,15 @@ export const freeMode = {
     custom: FreeCustom
   ): Promise<number> {
     const paintKit = Number(input.paintKit);
-    const skin = (await skinService.catalog()).find(
-      (s) => s.weapon === input.weapon && s.paintKit === paintKit
-    );
+    const catalog = await skinService.catalog();
+    const found = catalog.find((s) => s.weapon === input.weapon && s.paintKit === paintKit);
+    // A knife model's default look: paint kit 0, nothing to set on it.
+    const model = catalog.find((s) => s.weapon === input.weapon);
+    const plain = paintKit === 0 && model ? vanillaKnife(model.weapon, model.weaponName) : null;
+    const skin = found ?? plain;
     if (!skin || !WEAPON_DEFINDEX[skin.weapon])
       throw new SkinError(400, 'That skin is not in the catalogue.');
+    if (plain) custom = {};
     const id = await withFreeSchema(async () => {
       const existing = await db.queryOneAsync<{ id: number; stattrak: number | null }>(
         `SELECT id, stattrak FROM cs2_player_skins
@@ -176,8 +241,8 @@ export const freeMode = {
           skin.name,
           skin.rarity,
           skin.image,
-          custom.float ?? rollFloat(0, 0.07),
-          custom.pattern ?? rollPattern(),
+          plain ? 0 : (custom.float ?? rollFloat(0, 0.07)),
+          plain ? 0 : (custom.pattern ?? rollPattern()),
           variantOf(skin.paintKitName),
           statTrakValue(skin.weapon, custom.stattrak, null),
           custom.nametag ?? null,
