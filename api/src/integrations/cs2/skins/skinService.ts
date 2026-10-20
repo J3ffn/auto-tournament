@@ -54,7 +54,8 @@ export function rememberWearLooks(skins: CatalogSkin[]): void {
 }
 
 export function skinImageUrl(image: string, float?: number | null): string {
-  if (/^https?:\/\//.test(image)) return image;
+  // A full URL, or a path the platform serves itself (free mode's default looks), as it is.
+  if (/^https?:\/\//.test(image) || image.startsWith('/')) return image;
   let file = image;
   if (typeof float === 'number' && Number.isFinite(float) && float >= 0.15) {
     const looks = wearLooks.get(image);
@@ -714,8 +715,13 @@ export function loadoutPayload(
   const gloves: Array<{ team: LoadoutTeam; defindex: number }> = [];
   for (const row of rows) {
     const defindex = WEAPON_DEFINDEX[row.weapon];
-    if (!defindex || !row.paint_kit) continue;
+    if (!defindex) continue;
     const team = ([0, 2, 3].includes(Number(row.team)) ? Number(row.team) : 0) as LoadoutTeam;
+    // A knife with no finish (free mode's default look): the model only, no paint.
+    if (!row.paint_kit) {
+      if (row.slot === 'knife') knife.push({ team, defindex });
+      continue;
+    }
     paints.push({
       team,
       defindex,
@@ -730,7 +736,7 @@ export function loadoutPayload(
     if (row.slot === 'knife') knife.push({ team, defindex });
     if (row.slot === 'gloves') gloves.push({ team, defindex });
   }
-  if (!paints.length && !agents.length) return null;
+  if (!paints.length && !knife.length && !agents.length) return null;
   return {
     paints,
     ...(knife.length ? { knife } : {}),

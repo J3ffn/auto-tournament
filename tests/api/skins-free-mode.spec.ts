@@ -65,6 +65,20 @@ test.describe('Skins free mode: input checks', () => {
       agents: [{ team: 2, model: 'agents/models/tm_leet/tm_leet_variantf.vmdl' }],
     });
     expect(loadoutPayload([])).toBeNull();
+    // A knife with no finish: the model goes, and no paint.
+    expect(
+      loadoutPayload([
+        {
+          weapon: 'weapon_knife_karambit',
+          paint_kit: 0,
+          float_value: 0,
+          pattern: 0,
+          slot: 'knife',
+          team: 2,
+          stattrak: null,
+        },
+      ])
+    ).toEqual({ paints: [], knife: [{ team: 2, defindex: 507 }] });
   });
 });
 
@@ -187,6 +201,54 @@ test.describe.serial('Skins free mode', () => {
       await player.put('/api/skins/me/agents', { data: { team: 2, model: t.model } });
       const cleared = await player.put('/api/skins/me/agents', { data: { team: 3, model: null } });
       expect((await cleared.json()).mine).toEqual({ ct: null, t: t.model });
+
+      // A knife model's plain look: paint kit 0, its default picture, nothing to set on it.
+      expect(catalog.defaults).toEqual(
+        expect.objectContaining({
+          weapon_ak47: '/api/skins/free/img/base/weapon_ak47',
+          'knife:2': '/api/skins/free/img/base/weapon_knife_t',
+          'knife:3': '/api/skins/free/img/base/weapon_knife',
+          'gloves:3': '/api/skins/free/img/base/ct_gloves',
+        })
+      );
+      const plainKarambit = catalog.skins.find(
+        (s: { weapon: string; vanilla?: boolean }) =>
+          s.weapon === 'weapon_knife_karambit' && s.vanilla
+      );
+      expect(plainKarambit).toEqual(
+        expect.objectContaining({
+          paintKit: 0,
+          name: 'Vanilla',
+          image: '/api/skins/free/img/base/weapon_knife_karambit',
+        })
+      );
+      const plain = await player.post('/api/skins/me/free', {
+        data: { weapon: 'weapon_knife_karambit', paintKit: 0, team: 2, float: 0.9, nametag: 'x' },
+      });
+      expect(plain.ok(), await plain.text()).toBe(true);
+      const plainId = (await plain.json()).skinId;
+      expect((await mine()).find((s: { id: number }) => s.id === plainId)).toEqual(
+        expect.objectContaining({
+          name: 'Vanilla',
+          float: 0,
+          nametag: null,
+          stattrak: null,
+          imageUrl: '/api/skins/free/img/base/weapon_knife_karambit',
+          equippedSides: [2],
+        })
+      );
+      // Not a knife: paint kit 0 is not a finish.
+      expect(
+        (
+          await player.post('/api/skins/me/free', { data: { weapon: 'weapon_ak47', paintKit: 0 } })
+        ).status()
+      ).toBe(400);
+      expect((await player.delete(`/api/skins/me/skins/${plainId}`)).ok()).toBe(true);
+
+      // The picture route takes only its two kinds and plain keys.
+      expect((await player.get('/api/skins/free/img/other/weapon_ak47')).status()).toBe(404);
+      expect((await player.get('/api/skins/free/img/base/..%2Fsecret')).status()).toBe(404);
+      expect((await player.get('/api/skins/free/img/base/not_a_weapon')).status()).toBe(404);
 
       // Removing: a picked skin goes, with its loadout slot.
       expect((await player.delete(`/api/skins/me/skins/${skinId}`)).ok()).toBe(true);

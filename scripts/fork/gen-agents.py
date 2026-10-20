@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate api/src/integrations/cs2/skins/agents.json (fork: free-mode agents).
+"""Regenerate the free-mode data files: agents.json and baseWeapons.json (fork).
 
 Source: ByMykel/CSGO-API public/api/en/agents.json. Run from the repo root:
     python3 scripts/fork/gen-agents.py
@@ -36,3 +36,21 @@ with open(OUT, "w", encoding="utf-8") as f:
     json.dump(rows, f, ensure_ascii=False, indent=2)
     f.write("\n")
 print(f"{len(rows)} agents -> {OUT}")
+
+# Base weapons (the game's default look of every weapon, knife and glove), same source.
+BASE_URL = "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/base_weapons.json"
+BASE_OUT = "api/src/integrations/cs2/skins/baseWeapons.json"
+SKIP = {"weapon_flashbang", "weapon_hegrenade", "weapon_smokegrenade", "weapon_molotov",
+        "weapon_decoy", "weapon_incgrenade", "weapon_c4", "weapon_healthshot"}
+with urllib.request.urlopen(BASE_URL, timeout=30) as resp:
+    base = json.load(resp)
+weapons = {}
+for item in base:
+    key = item["id"].split("-", 1)[1]
+    if key in SKIP or not isinstance(item.get("image"), str):
+        continue
+    weapons[key] = {"name": item["name"], "image": item["image"]}
+with open(BASE_OUT, "w", encoding="utf-8") as f:
+    json.dump(weapons, f, ensure_ascii=False, indent=2)
+    f.write("\n")
+print(f"{len(weapons)} base weapons -> {BASE_OUT}")
