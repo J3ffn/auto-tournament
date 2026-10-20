@@ -32,12 +32,14 @@ Drops, recompensas de torneio e trade-up continuam funcionando. O modo livre é 
 
 ## Instalar
 
-Na máquina onde roda o container, dentro da pasta extraída:
+Na máquina onde roda o container (a VPS do site, não a do servidor CS2), dentro da pasta extraída:
 
 ```bash
 mkdir -p cs2-free && tar -xzf cs2-*.tar.gz -C cs2-free && cd cs2-free
 bash install.sh auto-tournament
 ```
+
+Importante: nunca rode `docker compose` dentro da pasta extraída. O compose fica na pasta original da plataforma, e rodar em outra pasta cria um segundo projeto com banco e dados vazios.
 
 O `install.sh`:
 
