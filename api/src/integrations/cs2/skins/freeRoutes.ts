@@ -2,7 +2,8 @@
  * Fork: free skin mode's routes, under /api/skins (mounted by ./routes.ts).
  * Every one answers 404 while skins or free mode are off.
  *
- * GET    /free/catalog       every finish a player can pick
+ * GET    /free/catalog       every finish a player can pick, and each slot's default look
+ * GET    /free/img/:kind/:key  a weapon's default look (base) or an agent's picture (agent)
  * GET    /free/agents        the agents per side, and (signed in) the ones you picked
  * POST   /me/free            pick a finish ({ weapon, paintKit, float?, pattern?, stattrak?, nametag?, team?, equip? })
  * PATCH  /me/skins/:id       change one of your skins ({ float?, pattern?, stattrak?, nametag? })
@@ -15,9 +16,13 @@ import { db } from '../../../config/database';
 import { log } from '../../../utils/logger';
 import { resolveViewerAccount } from '../../../utils/viewerIdentity';
 import { AGENTS, freeMode, parseCustom, requireFreeMode } from './freeMode';
+import freeImages from './freeImages';
 import { SkinError } from './skinService';
 
 const router = Router();
+
+// The game's default looks and the agents' pictures (public).
+router.use(freeImages);
 
 function fail(res: Response, error: unknown, what: string) {
   if (error instanceof SkinError)
@@ -56,14 +61,18 @@ async function loadoutChanged(uid: string): Promise<void> {
  *     tags: [Skins]
  *     summary: Every finish a player can pick in free mode (public)
  *     responses:
- *       200: { description: "{ skins: [{ weapon, weaponName, paintKit, name, variant, rarity, slot, side, image, statTrak }] }" }
+ *       200: { description: "{ skins: [{ weapon, weaponName, paintKit, name, variant, rarity, slot, side, image, statTrak, vanilla? }], defaults: { <weapon> | knife:2 | knife:3 | gloves:2 | gloves:3: picture url } }" }
  *       404: { description: Skins or free mode are off }
  */
 router.get('/free/catalog', async (_req, res) => {
   try {
     await requireFreeMode();
     res.set('Cache-Control', 'public, max-age=300');
-    return res.json({ success: true, skins: await freeMode.catalog() });
+    return res.json({
+      success: true,
+      skins: await freeMode.catalog(),
+      defaults: freeMode.defaults(),
+    });
   } catch (error) {
     return fail(res, error, 'Reading the skin list');
   }
