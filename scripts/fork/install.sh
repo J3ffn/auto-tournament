@@ -22,6 +22,12 @@ if ! docker inspect "$CONTAINER" >/dev/null 2>&1; then
   exit 1
 fi
 
+if [ "$(docker inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null)" != "true" ]; then
+  echo "The container '$CONTAINER' is not running. Start it first, from the folder with your" >&2
+  echo "docker-compose.yml (not this one): docker compose up -d" >&2
+  exit 1
+fi
+
 if [ "$MODE" = "--undo" ]; then
   if ! docker exec "$CONTAINER" test -d "$BACKUPS/cs2"; then
     echo "No backup in $BACKUPS/cs2: nothing to put back." >&2
@@ -41,7 +47,10 @@ fi
 VERSION="$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' "$HERE/cs2/module.json" | head -1)"
 
 if ! docker exec "$CONTAINER" test -f "$MODULES/cs2/module.json"; then
-  echo "CS2 is not installed in $CONTAINER ($MODULES/cs2). Install it from the site's Modules page first." >&2
+  echo "CS2 is not installed in $CONTAINER ($MODULES/cs2)." >&2
+  echo "Install Counter-Strike 2 on the site first (Manage > Modules), then run this again." >&2
+  echo "If CS2 was installed before, check that the container uses your original data volume:" >&2
+  echo "run docker compose from the folder of your original docker-compose.yml." >&2
   exit 1
 fi
 CURRENT="$(docker exec "$CONTAINER" sh -c "sed -n 's/.*\"version\": *\"\\([^\"]*\\)\".*/\\1/p' $MODULES/cs2/module.json | head -1")"
