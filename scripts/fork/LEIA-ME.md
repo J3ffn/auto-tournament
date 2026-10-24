@@ -7,16 +7,19 @@ Este pacote traz um módulo CS2 do Auto Tournament com o **modo livre de skins**
 - Ele equipa no **CT, no T ou nos dois**.
 - Ele escolhe um **agente** para cada lado.
 - Tudo vai para o jogo pelo plugin de skins do Ready Up, igual às skins normais.
+- A tela **Arsenal** se adapta ao tamanho da tela: três colunas em telas grandes, painel lateral em telas médias e painel de baixo no celular. Os botões de equipar ficam sempre à vista, mesmo em telas baixas.
 
 Drops, recompensas de torneio e trade-up continuam funcionando. O modo livre é um interruptor a mais em **Manage → Skins**.
 
 ## Antes de instalar
 
-1. **A versão da plataforma precisa ser a mesma do módulo.** O arquivo `VERSION` diz a versão. Por exemplo, `3.0.0-beta.177.free.1` foi feito para a imagem `3.0.0-beta.177`. No `docker-compose.yml`, troque `:next` pela versão fixa:
+1. **A versão da plataforma precisa ser a mesma do módulo.** O arquivo `VERSION` diz a versão. Por exemplo, `3.0.0-beta.216.free.1` foi feito para a imagem `3.0.0-beta.216`. No `docker-compose.yml`, troque `:next` (ou a versão antiga) pela versão fixa:
 
    ```yaml
-   image: sivertio/auto-tournament:3.0.0-beta.177
+   image: sivertio/auto-tournament:3.0.0-beta.216
    ```
+
+   O `install.sh` confere isso e não instala se a imagem for outra.
 
 2. **Desligue a atualização automática de módulos.** Senão, uma imagem mais nova troca este módulo pelo oficial. No arquivo `.env` (o mesmo onde fica o `SESSION_SECRET`), adicione:
 
@@ -43,7 +46,7 @@ Importante: nunca rode `docker compose` dentro da pasta extraída. O compose fic
 
 O `install.sh`:
 
-1. guarda uma cópia do módulo CS2 atual em `/app/data/module-backups/cs2`;
+1. guarda uma cópia do módulo CS2 oficial em `/app/data/module-backups/cs2-<versão>`;
 2. instala este módulo;
 3. reinicia o container;
 4. confere se o modo livre respondeu.
@@ -73,16 +76,21 @@ Quando o jogador muda algo no site:
 bash install.sh auto-tournament --undo
 ```
 
-O banco continua compatível com o módulo oficial. O modo livre só acrescenta uma coluna (`nametag`) e uma tabela (`cs2_player_agents`), e o oficial ignora as duas. Depois de voltar, você pode remover `MODULE_AUTO_UPDATE=false` e voltar para `:next`.
+Ele volta o módulo oficial da versão da imagem que está rodando. O banco continua compatível com o módulo oficial. O modo livre só acrescenta uma coluna (`nametag`) e uma tabela (`cs2_player_agents`), e o oficial ignora as duas. Depois de voltar, você pode remover `MODULE_AUTO_UPDATE=false` e voltar para `:next`.
 
-## Atualizar a plataforma no futuro
+## Atualizar a plataforma (por exemplo, de 177 para 216)
 
-Este módulo só funciona com a versão para a qual foi feito. Para ir para uma versão nova do Auto Tournament:
+Cada módulo só funciona com a versão para a qual foi feito. Para trocar de versão, use o pacote novo, gerado do fork já atualizado. Na pasta original da plataforma (a do `docker-compose.yml`):
 
-1. O fork precisa ser atualizado para a nova versão, e um módulo novo precisa ser gerado com `scripts/fork/build-free-skins.sh`.
-2. Só então troque a tag da imagem e rode o `install.sh` do pacote novo.
+1. No `docker-compose.yml`, troque a tag da imagem pela nova (`3.0.0-beta.216`).
+2. No `.env`, troque temporariamente `MODULE_AUTO_UPDATE=false` por `MODULE_AUTO_UPDATE=true`. Assim a plataforma troca o módulo antigo pelo **oficial** da versão nova e roda as migrações dele.
+3. Rode `docker compose pull && docker compose up -d` e espere o site voltar. Em **Manage → Modules**, o CS2 deve estar na versão nova.
+4. Volte o `.env` para `MODULE_AUTO_UPDATE=false` e rode `docker compose up -d` de novo.
+5. Rode o `install.sh` do pacote novo. Ele guarda uma cópia do módulo oficial novo (para o `--undo`) e instala o modo livre.
 
-Se trocar a imagem antes, o módulo antigo pode não carregar. Nesse caso, use `--undo`.
+As skins, nametags e agentes escolhidos ficam no banco, por isso continuam lá depois da troca.
+
+Se você pular os passos 2 a 4, a instalação ainda funciona, mas o `--undo` não terá o módulo oficial da versão nova para voltar.
 
 ## Observações
 

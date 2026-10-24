@@ -44,7 +44,7 @@ export function ensureFreeSkinsSchema(): Promise<boolean> {
 
 /** A query failed on a missing column or table (a reset database): check again next time. */
 function schemaGone(error: unknown): boolean {
-  return /nametag|cs2_player_agents/.test((error as Error)?.message ?? '');
+  return error instanceof Error && /nametag|cs2_player_agents/.test(error.message);
 }
 
 /** Run `fn` with the schema in place; after a missing-schema error, make it again and retry once. */

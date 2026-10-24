@@ -13,6 +13,7 @@
  */
 
 import { db } from '../../../config/database';
+import type { Untrusted } from '../../../utils/untrusted';
 import agentsJson from './agents.json';
 import { agentImageUrl, baseImageUrl, hasBaseImage } from './freeImages';
 import { agentsOf, ensureFreeSkinsSchema, withFreeSchema } from './freeSchema';
@@ -47,7 +48,7 @@ export interface AgentEntry {
 }
 
 export const AGENTS: readonly AgentEntry[] = (agentsJson as AgentEntry[])
-  .filter((a) => (a.team === 2 || a.team === 3) && a.model.startsWith('agents/models/'))
+  .filter((a) => a.model.startsWith('agents/models/'))
   // Served by the platform (./freeImages.ts), never straight from Steam.
   .map((a) => ({ ...a, image: agentImageUrl(a.model) }));
 
@@ -104,7 +105,7 @@ export async function requireFreeMode(): Promise<void> {
 }
 
 /** A name tag as the game takes it: one line, no control characters, at most 20 characters. */
-export function cleanNametag(raw: unknown): string | null {
+export function cleanNametag(raw: Untrusted): string | null {
   if (typeof raw !== 'string') return null;
   // eslint-disable-next-line no-control-regex -- strip control characters from a name tag
   const text = raw.replace(/[\u0000-\u001f\u007f]/g, '').trim();
@@ -112,8 +113,8 @@ export function cleanNametag(raw: unknown): string | null {
 }
 
 /** The fields of a request body a player may set, checked; bad values are refused, not guessed. */
-export function parseCustom(body: unknown): FreeCustom {
-  const input = (body && typeof body === 'object' ? body : {}) as Record<string, unknown>;
+export function parseCustom(body: Untrusted): FreeCustom {
+  const input = (body && typeof body === 'object' ? body : {}) as Record<string, Untrusted>;
   const out: FreeCustom = {};
   if (input.float !== undefined && input.float !== null) {
     const f = Number(input.float);
@@ -204,7 +205,7 @@ export const freeMode = {
    */
   async pick(
     playerUid: string,
-    input: { weapon: unknown; paintKit: unknown; team?: unknown; equip?: unknown },
+    input: { weapon: Untrusted; paintKit: Untrusted; team?: Untrusted; equip?: Untrusted },
     custom: FreeCustom
   ): Promise<number> {
     const paintKit = Number(input.paintKit);
@@ -319,7 +320,7 @@ export const freeMode = {
   },
 
   /** Set a side's agent (one from the list, for that side), or clear it with null. */
-  async setAgent(playerUid: string, teamRaw: unknown, modelRaw: unknown): Promise<void> {
+  async setAgent(playerUid: string, teamRaw: Untrusted, modelRaw: Untrusted): Promise<void> {
     const team = Number(teamRaw) as LoadoutTeam;
     if (team !== 2 && team !== 3) throw new SkinError(400, 'The side is 2 (T) or 3 (CT).');
     if (!(await ensureFreeSkinsSchema())) throw new SkinError(500, 'Agents are not available.');

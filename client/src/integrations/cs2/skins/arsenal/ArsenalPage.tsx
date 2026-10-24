@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   ButtonBase,
@@ -26,10 +26,11 @@ import {
 import type { OwnedSkin } from '../useSkins';
 import { LoadoutColumn } from './LoadoutColumn';
 import { MobileLoadout } from './MobileLoadout';
-import { SkinInspector, type InspectTarget } from './SkinInspector';
+import { SkinInspector, type InspectMode, type InspectTarget } from './SkinInspector';
 import { SlotCatalog, finishKey } from './SlotCatalog';
 import { bothSides, hasModels, type Side } from './slots';
 import { slotOfWeapon, useArsenal } from './useArsenal';
+import { SHORT_SCREEN, STICKY_MAX_HEIGHT, STICKY_TOP, WIDE, thinScroll } from './layout';
 
 const { color } = tokens;
 
@@ -40,16 +41,35 @@ function copyOf(inventory: OwnedSkin[], skin: FreeCatalogSkin): OwnedSkin | null
   return mine.find((o) => o.source === 'free') ?? mine[0] ?? null;
 }
 
+/** A column that stays under the top bar and scrolls on its own when the window is short. */
+const stickyColumn = {
+  position: 'sticky',
+  top: STICKY_TOP,
+  maxHeight: STICKY_MAX_HEIGHT,
+  minWidth: 0,
+} as const;
+
 /**
  * Fork (free mode): the Arsenal. A side (CT or T), its whole loadout on the
  * left, the finishes of the slot picked in the middle, and the panel that sets
- * one up and equips it on the right. On a phone the loadout is a row of
- * groups and slots, and the panel opens from the bottom.
+ * one up and equips it on the right.
+ *
+ * Wide screens get the three columns; the loadout and the panel stay under the
+ * top bar and never grow past the window, so the panel's buttons are always in
+ * reach. Medium screens keep the loadout and the list, and the panel opens from
+ * the side. On a phone the loadout is a row of groups and slots, and the panel
+ * is a sheet from the bottom.
  */
 export function ArsenalPage() {
   const { t } = useModuleTranslation('cs2');
   const { showError } = useSnackbar();
   const phone = useMediaQuery(useTheme().breakpoints.down('md'));
+  const wide = useMediaQuery(WIDE);
+  let drawer: InspectMode | null = null;
+  if (phone) drawer = 'bottom';
+  else if (!wide) drawer = 'side';
+  const catalogTop = useRef<HTMLDivElement>(null);
+  const panelBox = useRef<HTMLDivElement>(null);
   const a = useArsenal();
   const { mine, catalog, side, slot } = a;
   const [picked, setPicked] = useState<string | null>(null);
@@ -85,9 +105,43 @@ export function ArsenalPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slot, side, catalog]);
 
+  // A slot picked far down the loadout: bring its list's top back into view.
+  useEffect(() => {
+    const box = catalogTop.current;
+    if (box && !phone && box.getBoundingClientRect().top < 0)
+      box.scrollIntoView({ block: 'start' });
+    // Only when the slot changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slot]);
+
+  /**
+   * A finish picked (wide screens): scroll just enough for the whole panel to
+   * show, buttons included. Once the column reaches the top bar it sticks
+   * there and fits the window, so this is at most the gap above it.
+   */
+  const revealPanel = () => {
+    if (drawer) return;
+    // After the panel has drawn the new finish.
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        const box = panelBox.current;
+        if (!box) return;
+        const rect = box.getBoundingClientRect();
+        const below = rect.bottom - window.innerHeight + 12;
+        if (below <= 0) return;
+        const stickyTop = parseFloat(window.getComputedStyle(box).top) || 0;
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollBy({
+          top: Math.min(below, rect.top - stickyTop),
+          behavior: reduce ? 'auto' : 'smooth',
+        });
+      })
+    );
+  };
+
   const fail = (error: unknown) =>
     showError(error instanceof Error ? error.message : t('skins.free.failed'));
-  const run = async (work: () => Promise<unknown>) => {
+  const run = async (work: () => Promise<void>) => {
     setBusy(true);
     try {
       await work();
@@ -134,20 +188,20 @@ export function ArsenalPage() {
       } else {
         await pickFree(target.skin, custom, team);
       }
-      if (phone) setSheet(false);
+      if (drawer) setSheet(false);
     });
   const toDefault = () =>
     run(async () => {
       const on = current.skin;
       if (on) await mine.equip(on, side);
       setPicked(null);
-      if (phone) setSheet(false);
+      if (drawer) setSheet(false);
     });
   const setAgent = (model: string | null) =>
     run(async () => {
       await a.agents.setAgent(side, model);
       setAgentPick(undefined);
-      if (phone) setSheet(false);
+      if (drawer) setSheet(false);
     });
   const copyToOther = async () => {
     setCopying(true);
@@ -177,13 +231,15 @@ export function ArsenalPage() {
       selected={picked}
       onPick={(s) => {
         setPicked(finishKey(s));
-        if (phone) setSheet(true);
+        if (drawer) setSheet(true);
+        revealPanel();
       }}
       agents={a.agents.agents}
       agentSelected={agentPick === undefined ? agentModel : agentPick}
       onPickAgent={(m) => {
         setAgentPick(m);
-        if (phone) setSheet(true);
+        if (drawer) setSheet(true);
+        revealPanel();
       }}
     />
   );
@@ -196,6 +252,18 @@ export function ArsenalPage() {
       onEquip={(custom, team) => void equip(custom, team)}
       onDefault={() => void toDefault()}
       onAgent={(m) => void setAgent(m)}
+      mode={drawer ?? 'column'}
+      onClose={drawer ? () => setSheet(false) : undefined}
+    />
+  );
+  const loadout = (
+    <LoadoutColumn
+      side={side}
+      selected={slot}
+      view={a.view}
+      onSelect={a.setSlot}
+      onCopy={() => void copyToOther()}
+      copying={copying}
     />
   );
 
@@ -209,6 +277,7 @@ export function ArsenalPage() {
           display: 'flex',
           flexDirection: 'column',
           gap: 3,
+          [SHORT_SCREEN]: { py: 2, gap: 2 },
         }}
       >
         <Box
@@ -226,6 +295,7 @@ export function ArsenalPage() {
               sx={{
                 fontFamily: fontDisplay,
                 fontSize: { xs: '1.75rem', md: '2.5rem' },
+                [SHORT_SCREEN]: { fontSize: '1.75rem' },
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
               }}
@@ -238,43 +308,62 @@ export function ArsenalPage() {
         </Box>
         <VirtualNotice />
 
-        {phone ? (
-          <>
-            <MobileLoadout
-              side={side}
-              selected={slot}
-              view={a.view}
-              onSelect={a.setSlot}
-              onCopy={() => void copyToOther()}
-              copying={copying}
-            />
+        {phone && (
+          <MobileLoadout
+            side={side}
+            selected={slot}
+            view={a.view}
+            onSelect={a.setSlot}
+            onCopy={() => void copyToOther()}
+            copying={copying}
+          />
+        )}
+        <Box sx={{ display: 'flex', gap: { md: 2, lg: 2.5 }, alignItems: 'flex-start' }}>
+          {!phone && (
+            <Box
+              sx={{ ...stickyColumn, ...thinScroll, flex: `0 0 ${wide ? 300 : 260}px`, pr: 0.5 }}
+            >
+              {loadout}
+            </Box>
+          )}
+          <Box ref={catalogTop} sx={{ flex: '1 1 auto', minWidth: 0, scrollMarginTop: STICKY_TOP }}>
             {catalogView}
-            <Drawer
-              anchor="bottom"
-              open={sheet}
-              onClose={() => setSheet(false)}
-              PaperProps={{ sx: { bgcolor: 'transparent', boxShadow: 'none', maxHeight: '92vh' } }}
+          </Box>
+          {wide && (
+            <Box
+              ref={panelBox}
+              sx={{ ...stickyColumn, flex: '0 0 340px', display: 'flex', flexDirection: 'column' }}
             >
               {inspector}
-            </Drawer>
-          </>
-        ) : (
-          <Box sx={{ display: 'flex', gap: 2.5, alignItems: 'flex-start' }}>
-            <Box sx={{ flex: '0 0 300px', minWidth: 0 }}>
-              <LoadoutColumn
-                side={side}
-                selected={slot}
-                view={a.view}
-                onSelect={a.setSlot}
-                onCopy={() => void copyToOther()}
-                copying={copying}
-              />
             </Box>
-            <Box sx={{ flex: '1 1 auto', minWidth: 0 }}>{catalogView}</Box>
-            <Box sx={{ flex: '0 0 340px', minWidth: 0, position: 'sticky', top: 24 }}>
-              {inspector}
-            </Box>
-          </Box>
+          )}
+        </Box>
+        {drawer && (
+          <Drawer
+            anchor={drawer === 'bottom' ? 'bottom' : 'right'}
+            open={sheet}
+            onClose={() => setSheet(false)}
+            PaperProps={{
+              sx:
+                drawer === 'bottom'
+                  ? {
+                      bgcolor: 'transparent',
+                      boxShadow: 'none',
+                      maxHeight: '92%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }
+                  : {
+                      width: 'min(400px, 100vw)',
+                      bgcolor: color.paper2,
+                      borderLeft: `1px solid ${color.rule}`,
+                      display: 'flex',
+                      flexDirection: 'column',
+                    },
+            }}
+          >
+            {inspector}
+          </Drawer>
         )}
       </Container>
     </Box>
