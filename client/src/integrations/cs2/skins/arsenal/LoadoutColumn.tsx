@@ -55,6 +55,10 @@ export function LoadoutColumn({
           borderRadius: '16px',
           bgcolor: color.paper2,
           border: `1px solid ${color.rule}`,
+          // Stays at the top while the column scrolls on its own.
+          position: 'sticky',
+          top: 0,
+          zIndex: 1,
         }}
       >
         <Typography
