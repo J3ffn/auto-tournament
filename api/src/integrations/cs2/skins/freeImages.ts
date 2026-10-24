@@ -30,7 +30,7 @@ const MAX_BYTES = 2 * 1024 * 1024;
 const MISS_TTL_MS = 10 * 60 * 1000;
 const TYPES: Record<string, string> = { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp' };
 
-const BASE: Readonly<Record<string, { name: string; image: string }>> = baseJson;
+const BASE: Readonly<Partial<Record<string, { name: string; image: string }>>> = baseJson;
 
 /** An agent's key: its model's file name (`agents/models/ctm_st6/ctm_st6_variantj.vmdl` → `ctm_st6_variantj`). */
 export function agentKey(model: string): string {
@@ -64,7 +64,7 @@ function sourceUrl(kind: string, key: string): string | null {
 }
 
 function offline(): boolean {
-  return ['1', 'true', 'yes'].includes((process.env.CATALOG_OFFLINE || '').trim().toLowerCase());
+  return ['1', 'true', 'yes'].includes((process.env.CATALOG_OFFLINE ?? '').trim().toLowerCase());
 }
 
 /** The cached file for a picture, if there is one. */

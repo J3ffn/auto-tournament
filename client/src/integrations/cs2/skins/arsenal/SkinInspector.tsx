@@ -1,14 +1,7 @@
-import {
-  useEffect,
-  useState,
-  type InputHTMLAttributes,
-  type ReactNode,
-  type SyntheticEvent,
-} from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, ButtonBase, Slider, Switch, TextField, Typography } from '@mui/material';
-import { CrosshairSimpleIcon, DiceFiveIcon } from '@phosphor-icons/react';
-import { useModuleTranslation, tokens, fontDisplay, mono, radii } from '../../../../module-sdk';
-import { skinCardUrl } from '../SkinParts';
+import { DiceFiveIcon } from '@phosphor-icons/react';
+import { useModuleTranslation, tokens, mono, radii } from '../../../../module-sdk';
 import { rarityColor } from '../rarity';
 import { wearKey, type OwnedSkin } from '../useSkins';
 import {
@@ -19,9 +12,13 @@ import {
   type FreeCatalogSkin,
   type FreeCustom,
 } from '../freeSkins';
-import { AgentPicture } from './SlotCatalog';
+import { AgentPicture } from './AgentGrid';
+import { Panel, Stage, Title, type InspectMode } from './InspectorParts';
+import { SHORT_SCREEN } from './layout';
 import type { Side } from './slots';
 import { finishName } from './useArsenal';
+
+export type { InspectMode };
 
 const { color } = tokens;
 
@@ -30,6 +27,9 @@ export type InspectTarget =
   | { kind: 'finish'; skin: FreeCatalogSkin; copy: OwnedSkin | null; equipped: boolean }
   | { kind: 'default'; label: string; image: string | null; equipped: OwnedSkin | null }
   | { kind: 'agent'; agent: FreeAgent | null; current: boolean };
+
+/** The StatTrak switch's input, as the tests find it. */
+const STATTRAK_INPUT = { name: 'stattrak', 'data-testid': 'arsenal-stattrak' };
 
 /** CS2's wear ranges, with the float each one's button sets. */
 const WEARS = [
@@ -53,6 +53,8 @@ export function SkinInspector({
   onEquip,
   onDefault,
   onAgent,
+  mode = 'column',
+  onClose,
 }: {
   target: InspectTarget;
   side: Side;
@@ -63,6 +65,8 @@ export function SkinInspector({
   /** Take what is on this side off: the game's default look comes back. */
   onDefault: () => void;
   onAgent: (model: string | null) => void;
+  mode?: InspectMode;
+  onClose?: () => void;
 }) {
   const { t } = useModuleTranslation('cs2');
   const [custom, setCustom] = useState<FreeCustom>(freshCustom);
@@ -77,49 +81,58 @@ export function SkinInspector({
   }, [key]);
   const set = (patch: Partial<FreeCustom>) => setCustom((c) => ({ ...c, ...patch }));
   const sideName = side === 3 ? t('skins.side.ct') : t('skins.side.t');
+  const panel = { mode, onClose };
 
   if (target.kind === 'agent') {
     return (
-      <Panel>
-        <AgentPicture agent={target.agent} height={200} />
+      <Panel
+        {...panel}
+        actions={
+          <Button
+            variant="contained"
+            disabled={busy || target.current}
+            onClick={() => onAgent(target.agent?.model ?? null)}
+            data-testid="arsenal-equip"
+            sx={{ height: 48, borderRadius: radii.pill, fontWeight: 700 }}
+          >
+            {target.current
+              ? t('skins.arsenal.inUse')
+              : t('skins.arsenal.equipOn', { side: sideName })}
+          </Button>
+        }
+      >
+        <AgentPicture agent={target.agent} stage />
         <Title
           over={t('skins.arsenal.slot.agent')}
           name={target.agent?.name ?? t('skins.free.defaultAgent')}
         />
-        <Button
-          variant="contained"
-          disabled={busy || target.current}
-          onClick={() => onAgent(target.agent?.model ?? null)}
-          data-testid="arsenal-equip"
-          sx={{ height: 48, borderRadius: radii.pill, fontWeight: 700 }}
-        >
-          {target.current
-            ? t('skins.arsenal.inUse')
-            : t('skins.arsenal.equipOn', { side: sideName })}
-        </Button>
       </Panel>
     );
   }
 
   if (target.kind === 'default') {
     return (
-      <Panel>
+      <Panel
+        {...panel}
+        actions={
+          target.equipped && (
+            <Button
+              variant="outlined"
+              disabled={busy}
+              onClick={onDefault}
+              data-testid="arsenal-default"
+              sx={{ height: 44, borderRadius: radii.pill }}
+            >
+              {t('skins.arsenal.useDefault', { side: sideName })}
+            </Button>
+          )
+        }
+      >
         <Stage image={target.image} tone={color.rule} />
         <Title over={target.label} name={t('skins.arsenal.default')} />
         <Typography sx={{ fontSize: '0.875rem', color: color.ink2 }}>
           {t('skins.arsenal.defaultHint')}
         </Typography>
-        {target.equipped && (
-          <Button
-            variant="outlined"
-            disabled={busy}
-            onClick={onDefault}
-            data-testid="arsenal-default"
-            sx={{ height: 44, borderRadius: radii.pill }}
-          >
-            {t('skins.arsenal.useDefault', { side: sideName })}
-          </Button>
-        )}
       </Panel>
     );
   }
@@ -131,8 +144,65 @@ export function SkinInspector({
   const wear = WEARS.find((w) => custom.float >= w.from && custom.float < w.to) ?? WEARS[4];
   const image = target.copy?.imageUrl && !plain ? target.copy.imageUrl : skin.image;
 
+  const actions = (
+    <>
+      <Button
+        variant="contained"
+        disabled={busy}
+        onClick={() => onEquip(custom, side)}
+        data-testid="arsenal-equip"
+        sx={{
+          height: 48,
+          [SHORT_SCREEN]: { height: 42 },
+          borderRadius: radii.pill,
+          fontWeight: 700,
+          gap: 1.25,
+        }}
+      >
+        <Box
+          component="span"
+          aria-hidden
+          sx={{
+            width: 10,
+            height: 10,
+            borderRadius: '50%',
+            bgcolor: side === 3 ? color.sideCt : color.sideT,
+            boxShadow: `0 0 0 2px ${color.accentInk}`,
+          }}
+        />
+        {target.equipped ? t('skins.arsenal.save') : t('skins.arsenal.equipOn', { side: sideName })}
+      </Button>
+      {canBoth && (
+        <Button
+          variant="outlined"
+          disabled={busy}
+          onClick={() => onEquip(custom, 0)}
+          data-testid="arsenal-equip-both"
+          sx={{ height: 44, [SHORT_SCREEN]: { height: 38 }, borderRadius: radii.pill }}
+        >
+          {t('skins.arsenal.equipBoth')}
+        </Button>
+      )}
+      {target.equipped && (
+        <Button
+          disabled={busy}
+          onClick={onDefault}
+          data-testid="arsenal-default"
+          sx={{
+            height: 40,
+            [SHORT_SCREEN]: { height: 34 },
+            borderRadius: radii.pill,
+            color: color.ink2,
+          }}
+        >
+          {t('skins.arsenal.useDefault', { side: sideName })}
+        </Button>
+      )}
+    </>
+  );
+
   return (
-    <Panel>
+    <Panel {...panel} actions={actions}>
       <Stage
         image={image}
         tone={plain ? color.rule : rarityColor[skin.rarity]}
@@ -278,11 +348,7 @@ export function SkinInspector({
               <Switch
                 checked={custom.stattrak}
                 onChange={(e) => set({ stattrak: e.target.checked })}
-                slotProps={{
-                  input: {
-                    'data-testid': 'arsenal-stattrak',
-                  } as InputHTMLAttributes<HTMLInputElement>,
-                }}
+                slotProps={{ input: STATTRAK_INPUT }}
               />
             </Box>
           )}
@@ -299,179 +365,6 @@ export function SkinInspector({
           )}
         </>
       )}
-
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-        <Button
-          variant="contained"
-          disabled={busy}
-          onClick={() => onEquip(custom, side)}
-          data-testid="arsenal-equip"
-          sx={{ height: 48, borderRadius: radii.pill, fontWeight: 700, gap: 1.25 }}
-        >
-          <Box
-            component="span"
-            aria-hidden
-            sx={{
-              width: 10,
-              height: 10,
-              borderRadius: '50%',
-              bgcolor: side === 3 ? color.sideCt : color.sideT,
-              boxShadow: `0 0 0 2px ${color.accentInk}`,
-            }}
-          />
-          {target.equipped
-            ? t('skins.arsenal.save')
-            : t('skins.arsenal.equipOn', { side: sideName })}
-        </Button>
-        {canBoth && (
-          <Button
-            variant="outlined"
-            disabled={busy}
-            onClick={() => onEquip(custom, 0)}
-            data-testid="arsenal-equip-both"
-            sx={{ height: 44, borderRadius: radii.pill }}
-          >
-            {t('skins.arsenal.equipBoth')}
-          </Button>
-        )}
-        {target.equipped && (
-          <Button
-            disabled={busy}
-            onClick={onDefault}
-            data-testid="arsenal-default"
-            sx={{ height: 40, borderRadius: radii.pill, color: color.ink2 }}
-          >
-            {t('skins.arsenal.useDefault', { side: sideName })}
-          </Button>
-        )}
-      </Box>
     </Panel>
-  );
-}
-
-function Panel({ children }: { children: ReactNode }) {
-  return (
-    <Box
-      component="aside"
-      data-testid="arsenal-inspector"
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2.25,
-        p: 2.5,
-        borderRadius: '20px',
-        bgcolor: color.paper2,
-        border: `1px solid ${color.rule}`,
-        position: { md: 'sticky' },
-        top: { md: 24 },
-      }}
-    >
-      {children}
-    </Box>
-  );
-}
-
-function Stage({
-  image,
-  tone,
-  nametag = '',
-}: {
-  image: string | null;
-  tone: string;
-  nametag?: string;
-}) {
-  const [broken, setBroken] = useState<string | null>(null);
-  return (
-    <Box
-      sx={{
-        position: 'relative',
-        display: 'grid',
-        placeItems: 'center',
-        height: 200,
-        borderRadius: '14px',
-        bgcolor: color.paper3,
-        borderBottom: `3px solid ${tone}`,
-      }}
-    >
-      {image && broken !== image ? (
-        <Box
-          component="img"
-          src={image}
-          alt=""
-          // The full-size picture comes on demand; the card size ships with the module.
-          onError={(e: SyntheticEvent<HTMLImageElement>) => {
-            const small = skinCardUrl(image);
-            if (e.currentTarget.src !== new URL(small, window.location.href).href)
-              e.currentTarget.src = small;
-            else setBroken(image);
-          }}
-          sx={{ width: '100%', maxHeight: 180, objectFit: 'contain' }}
-        />
-      ) : (
-        <CrosshairSimpleIcon size={64} color={color.muted} aria-hidden />
-      )}
-      {nametag && (
-        <Typography
-          sx={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 10,
-            textAlign: 'center',
-            ...mono,
-            fontSize: '0.8125rem',
-            color: color.ink2,
-          }}
-        >
-          “{nametag}”
-        </Typography>
-      )}
-    </Box>
-  );
-}
-
-function Title({
-  over,
-  name,
-  rarity,
-}: {
-  over: string;
-  name: string;
-  rarity?: { label: string; tone: string } | null;
-}) {
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-      <Typography sx={{ fontSize: '0.8125rem', color: color.muted }}>{over}</Typography>
-      <Typography
-        component="h2"
-        sx={{
-          fontFamily: fontDisplay,
-          fontSize: '1.625rem',
-          fontWeight: 700,
-          letterSpacing: '-0.01em',
-        }}
-      >
-        {name}
-      </Typography>
-      {rarity && (
-        <Box
-          component="span"
-          sx={{
-            alignSelf: 'flex-start',
-            px: 1.25,
-            py: '3px',
-            borderRadius: radii.pill,
-            ...mono,
-            fontSize: '0.6875rem',
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-            color: rarity.tone,
-            bgcolor: `${rarity.tone}22`,
-          }}
-        >
-          {rarity.label}
-        </Box>
-      )}
-    </Box>
   );
 }

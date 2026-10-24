@@ -8,7 +8,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { MagnifyingGlassIcon, UserCircleIcon } from '@phosphor-icons/react';
+import { MagnifyingGlassIcon } from '@phosphor-icons/react';
 import {
   useModuleTranslation,
   tokens,
@@ -21,6 +21,8 @@ import { skinCardUrl } from '../SkinParts';
 import { SlotThumb } from './SlotThumb';
 import { rarityColor, RARITY_ORDER } from '../rarity';
 import { freeSkinName, type FreeAgent, type FreeCatalogSkin } from '../freeSkins';
+import { AgentGrid } from './AgentGrid';
+import { SHORT_SCREEN } from './layout';
 import type { OwnedSkin, Rarity } from '../useSkins';
 import { hasModels, type Side } from './slots';
 import { finishName, slotOfWeapon } from './useArsenal';
@@ -112,12 +114,12 @@ export function SlotCatalog({
         o.name === (s.vanilla ? 'Vanilla' : freeSkinName(s)) &&
         (o.equippedSides.includes(side) || o.equippedSides.includes(0))
     );
-  const count =
-    slotId === 'agent'
-      ? t('skins.arsenal.agentCount', { count: agents.length })
-      : hasModels(slotId) && model
-        ? `${models.find((m) => m.weapon === model)?.weaponName ?? ''} · ${t('skins.arsenal.finishCount', { count: list.length })}`
-        : t('skins.free.count', { count: inSlot.length });
+  let count = t('skins.free.count', { count: inSlot.length });
+  if (slotId === 'agent') count = t('skins.arsenal.agentCount', { count: agents.length });
+  else if (hasModels(slotId) && model) {
+    const modelName = models.find((m) => m.weapon === model)?.weaponName ?? '';
+    count = `${modelName} · ${t('skins.arsenal.finishCount', { count: list.length })}`;
+  }
 
   return (
     <Box
@@ -181,7 +183,14 @@ export function SlotCatalog({
           <Box
             role="group"
             aria-label={t('skins.arsenal.model')}
-            sx={{ display: 'flex', gap: 1, overflowX: 'auto', pb: 0.5 }}
+            sx={{
+              display: 'flex',
+              gap: 1,
+              overflowX: 'auto',
+              pb: 0.5,
+              mx: { xs: -2, sm: 0 },
+              px: { xs: 2, sm: 0 },
+            }}
           >
             {models.map((m) => {
               const on = m.weapon === model;
@@ -218,19 +227,30 @@ export function SlotCatalog({
         </Box>
       )}
 
-      {slotId === 'agent' ? (
+      {slotId === 'agent' && (
         <AgentGrid side={side} agents={agents} selected={agentSelected} onPick={onPickAgent} />
-      ) : !catalog ? (
+      )}
+      {slotId !== 'agent' && !catalog && (
         <Box sx={{ display: 'grid', placeItems: 'center', py: 8 }}>
           <CircularProgress aria-label={label} />
         </Box>
-      ) : (
+      )}
+      {slotId !== 'agent' && catalog && (
         <>
           {rarities.length > 1 && (
             <Box
               role="group"
               aria-label={t('skins.arsenal.rarity')}
-              sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}
+              // One scrolling row on a phone, so the finishes start higher up.
+              sx={{
+                display: 'flex',
+                flexWrap: { xs: 'nowrap', sm: 'wrap' },
+                overflowX: { xs: 'auto', sm: 'visible' },
+                mx: { xs: -2, sm: 0 },
+                px: { xs: 2, sm: 0 },
+                pb: { xs: 0.5, sm: 0 },
+                gap: 1,
+              }}
             >
               {(['all', ...rarities] as Array<'all' | Rarity>).map((r) => (
                 <Chip
@@ -250,8 +270,11 @@ export function SlotCatalog({
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-                gap: 1.5,
+                gridTemplateColumns: {
+                  xs: 'repeat(auto-fill, minmax(140px, 1fr))',
+                  sm: 'repeat(auto-fill, minmax(160px, 1fr))',
+                },
+                gap: { xs: 1, sm: 1.5 },
               }}
             >
               {list.slice(0, shown).map((s) => (
@@ -297,9 +320,11 @@ function Chip({
       onClick={onClick}
       aria-pressed={on}
       sx={{
+        flexShrink: 0,
         gap: 1,
-        height: 36,
+        height: { xs: 40, sm: 36 },
         px: 1.75,
+        whiteSpace: 'nowrap',
         borderRadius: radii.pill,
         fontSize: '0.8125rem',
         fontWeight: on ? 600 : 400,
@@ -359,6 +384,7 @@ function FinishCard({
           display: 'grid',
           placeItems: 'center',
           height: 104,
+          [SHORT_SCREEN]: { height: 88 },
           bgcolor: color.paper3,
         }}
       >
@@ -398,102 +424,5 @@ function FinishCard({
         sx={{ height: 3, bgcolor: skin.vanilla ? color.rule : rarityColor[skin.rarity] }}
       />
     </ButtonBase>
-  );
-}
-
-function AgentGrid({
-  side,
-  agents,
-  selected,
-  onPick,
-}: {
-  side: Side;
-  agents: FreeAgent[];
-  selected: string | null;
-  onPick: (model: string | null) => void;
-}) {
-  const { t } = useModuleTranslation('cs2');
-  const mine = agents.filter((a) => a.team === side);
-  const tile = (agent: FreeAgent | null) => {
-    const on = (agent?.model ?? null) === selected;
-    return (
-      <ButtonBase
-        key={agent?.model ?? 'default'}
-        onClick={() => onPick(agent?.model ?? null)}
-        aria-pressed={on}
-        data-testid="arsenal-agent"
-        sx={{
-          flexDirection: 'column',
-          alignItems: 'stretch',
-          gap: 0.75,
-          p: 1,
-          borderRadius: '14px',
-          textAlign: 'left',
-          bgcolor: color.paper2,
-          border: `2px solid ${on ? color.accent : color.rule}`,
-        }}
-      >
-        <AgentPicture agent={agent} />
-        <Box
-          aria-hidden
-          sx={{ height: 3, borderRadius: '2px', bgcolor: agent?.color ?? color.rule }}
-        />
-        <Typography sx={{ fontSize: '0.8125rem' }}>
-          {agent?.name ?? t('skins.free.defaultAgent')}
-        </Typography>
-      </ButtonBase>
-    );
-  };
-  return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-        gap: 1.25,
-      }}
-    >
-      {tile(null)}
-      {mine.map(tile)}
-    </Box>
-  );
-}
-
-export function AgentPicture({
-  agent,
-  height = 120,
-}: {
-  agent: FreeAgent | null;
-  height?: number;
-}) {
-  const [broken, setBroken] = useState(false);
-  return agent && !broken ? (
-    <Box
-      component="img"
-      src={agent.image}
-      alt=""
-      loading="lazy"
-      onError={() => setBroken(true)}
-      sx={{
-        width: '100%',
-        height,
-        objectFit: 'contain',
-        bgcolor: color.paper3,
-        borderRadius: '10px',
-      }}
-    />
-  ) : (
-    <Box
-      aria-hidden
-      sx={{
-        height,
-        display: 'grid',
-        placeItems: 'center',
-        bgcolor: color.paper3,
-        borderRadius: '10px',
-        color: color.muted,
-      }}
-    >
-      <UserCircleIcon size={height * 0.4} />
-    </Box>
   );
 }
