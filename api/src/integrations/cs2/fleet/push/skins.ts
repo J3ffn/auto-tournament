@@ -110,6 +110,12 @@ export async function playersSeen(fleetServerId: string, steamids: string[] | nu
   for (const id of arrived) await pushSkinsOnConnect(fleetServerId, '', id);
 }
 
+/** Whether a player is on one of the fleet's servers right now (fork: the loadout page says so). */
+export function onAServer(steamid64: string): boolean {
+  for (const ids of presentOn.values()) if (ids.has(steamid64)) return true;
+  return false;
+}
+
 async function hasMatch(fleetServerId: string): Promise<boolean> {
   const row = await db.queryOneAsync<{ slug: string }>(
     "SELECT slug FROM matches WHERE server_id = ? AND status IN ('loaded', 'live') LIMIT 1",

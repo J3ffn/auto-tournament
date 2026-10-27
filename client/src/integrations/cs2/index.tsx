@@ -94,6 +94,13 @@ const SkinsAdminPage = lazyPage(() =>
 const InventoryPage = lazyPage(() =>
   import('./skins/InventoryPage').then((m) => ({ default: m.InventoryPage }))
 );
+// Fork (free mode): the Loadout tab and "Add skins".
+const LoadoutRoute = lazyPage(() =>
+  import('./skins/loadout/FreeModeRoute').then((m) => ({ default: m.LoadoutRoute }))
+);
+const AddSkinsRoute = lazyPage(() =>
+  import('./skins/loadout/FreeModeRoute').then((m) => ({ default: m.AddSkinsRoute }))
+);
 const DropRatesPage = lazyPage(() =>
   import('./skins/DropRatesPage').then((m) => ({ default: m.DropRatesPage }))
 );
@@ -296,6 +303,8 @@ export const cs2ClientIntegration: ClientGameIntegration = {
     { path: cs2AdminPaths.skins, scope: 'admin', element: <SkinsAdminPage /> },
     { path: cs2AdminPaths.matchRules, scope: 'admin', element: <MatchRulesPage /> },
     { path: skinPaths.inventory, scope: 'site', element: <InventoryPage /> },
+    { path: skinPaths.loadout, scope: 'site', element: <LoadoutRoute /> },
+    { path: skinPaths.add, scope: 'site', element: <AddSkinsRoute /> },
     { path: skinPaths.playerInventory, scope: 'site', element: <InventoryPage /> },
     { path: skinPaths.dropRates, scope: 'site', element: <DropRatesPage /> },
     { path: demoPaths.analysis, scope: 'site', element: <DemoAnalysisPage /> },
