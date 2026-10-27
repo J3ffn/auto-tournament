@@ -30,7 +30,7 @@ import { canPick, togglePick } from './tradeUp';
 import { TradeUpPanel } from './TradeUpPanel';
 import { TryoutLink } from './TryoutLink';
 import { skinCategory, type SkinCategory } from './categories';
-import { ArsenalPage } from './arsenal/ArsenalPage';
+import { ItemsPage } from './loadout/ItemsPage';
 
 const { color } = tokens;
 const RARITY_ORDER: Rarity[] = [
@@ -84,8 +84,10 @@ export function InventoryPage() {
   const [tradeUpCount, setTradeUpCount] = useState<number | null>(null);
   const [trading, setTrading] = useState(false);
   const [picked, setPicked] = useState<OwnedSkin[]>([]);
-  // Fork: free mode shows your own inventory as the Arsenal (./arsenal/ArsenalPage.tsx).
+  // Fork: free mode shows your own inventory as My items (./loadout/ItemsPage.tsx).
   const [freeMode, setFreeMode] = useState(false);
+  // Your own page waits for the status, so free mode does not flash the old inventory first.
+  const [statusKnown, setStatusKnown] = useState(!own);
 
   useEffect(() => {
     if (!own) return;
@@ -96,8 +98,9 @@ export function InventoryPage() {
         if (cancelled) return;
         setTradeUpCount(r.tradeUp?.count ?? null);
         setFreeMode(r.freeMode === true);
+        setStatusKnown(true);
       })
-      .catch(() => undefined);
+      .catch(() => !cancelled && setStatusKnown(true));
     return () => {
       cancelled = true;
     };
@@ -154,7 +157,8 @@ export function InventoryPage() {
     </ButtonBase>
   );
 
-  if (own && freeMode) return <ArsenalPage />;
+  if (own && freeMode) return <ItemsPage />;
+  if (!statusKnown) return null;
 
   return (
     <Box data-testid="inventory-page">

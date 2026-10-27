@@ -17,6 +17,7 @@ import type { PlayerProfileSectionProps } from '../../types';
 import { rarityColor } from './rarity';
 import { playerInventoryPath, skinPaths } from './paths';
 import { equippedFor } from './loadoutSides';
+import { ProfileFreeLoadout, type ProfileLoadoutInfo } from './loadout/ProfileFreeLoadout';
 
 const { color } = tokens;
 /** The favourites strip: two big tiles, then four small ones (a full 6 × 2 grid). */
@@ -181,9 +182,12 @@ export function ProfileLoadout({
   const { t } = useModuleTranslation('cs2');
   const enabled = useSkinsEnabled();
   const mine = useMySkins();
-  const [data, setData] = useState<{ inventory: OwnedSkin[]; showcase: ShowcaseItem[] } | null>(
-    null
-  );
+  const [data, setData] = useState<{
+    inventory: OwnedSkin[];
+    showcase: ShowcaseItem[];
+    /** Fork (free mode): the loadout the profile shows. */
+    loadout?: ProfileLoadoutInfo | null;
+  } | null>(null);
   const [inspect, setInspect] = useState<number | null>(null);
   const [arranging, setArranging] = useState(false);
   const [draft, setDraft] = useState<Array<{ skinId: number; big: boolean }>>([]);
@@ -194,7 +198,11 @@ export function ProfileLoadout({
     if (!enabled) return;
     let cancelled = false;
     api
-      .get<{ inventory: OwnedSkin[]; showcase: ShowcaseItem[] }>(`/api/skins/players/${steamId}`)
+      .get<{
+        inventory: OwnedSkin[];
+        showcase: ShowcaseItem[];
+        loadout?: ProfileLoadoutInfo | null;
+      }>(`/api/skins/players/${steamId}`)
       .then((r) => !cancelled && setData(r))
       .catch(() => !cancelled && setData(null));
     return () => {
@@ -340,16 +348,25 @@ export function ProfileLoadout({
           </Box>
         </Box>
       )}
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: 'minmax(0,1fr)', md: 'repeat(2, minmax(0,1fr))' },
-          gap: { xs: 3, md: 4 },
-        }}
-      >
-        <SideLoadout team={3} inventory={data.inventory} onInspect={setInspect} />
-        <SideLoadout team={2} inventory={data.inventory} onInspect={setInspect} />
-      </Box>
+      {data.loadout ? (
+        <ProfileFreeLoadout
+          info={data.loadout}
+          inventory={data.inventory}
+          isOwn={isOwn}
+          onInspect={setInspect}
+        />
+      ) : (
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: 'minmax(0,1fr)', md: 'repeat(2, minmax(0,1fr))' },
+            gap: { xs: 3, md: 4 },
+          }}
+        >
+          <SideLoadout team={3} inventory={data.inventory} onInspect={setInspect} />
+          <SideLoadout team={2} inventory={data.inventory} onInspect={setInspect} />
+        </Box>
+      )}
       <Typography sx={{ fontSize: '0.75rem', color: color.muted }}>{t('skins.notice')}</Typography>
 
       <InspectSkinDialog skinId={inspect} onClose={() => setInspect(null)} />

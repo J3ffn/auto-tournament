@@ -656,7 +656,7 @@ function withPriceRarity(skins: CatalogSkin[], prices: Record<string, number>): 
   });
 }
 
-async function uidOf(steamId: string): Promise<string | null> {
+export async function uidOf(steamId: string): Promise<string | null> {
   const row = await db.queryOneAsync<{ uid: string }>('SELECT uid FROM players WHERE id = ?', [
     steamId,
   ]);

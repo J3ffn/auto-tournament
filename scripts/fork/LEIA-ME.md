@@ -7,7 +7,13 @@ Este pacote traz um módulo CS2 do Auto Tournament com o **modo livre de skins**
 - Ele equipa no **CT, no T ou nos dois**.
 - Ele escolhe um **agente** para cada lado.
 - Tudo vai para o jogo pelo plugin de skins do Ready Up, igual às skins normais.
-- A tela **Arsenal** se adapta ao tamanho da tela: três colunas em telas grandes, painel lateral em telas médias e painel de baixo no celular. Os botões de equipar ficam sempre à vista, mesmo em telas baixas.
+- O inventário tem duas abas, **Meus itens** e **Loadout**, inspiradas na tela de loadout do CS2:
+  - **Loadout**: o lado CT à esquerda e o TR à direita, com o lado em edição destacado na cor do jogo. As armas mudam de lugar arrastando (ou clicando na arma e depois no slot). Ao clicar num slot aparecem as skins dele: as do inventário e o **Catálogo**, que adiciona e equipa na hora.
+  - **Meus itens**: filtros por lado (CT/TR), tipo e nome; o painel da skin mostra onde ela está equipada (CT/TR), personalização, perfil e remover, com "Desfazer".
+  - **Adicionar skins**: marque várias e adicione de uma vez (Nova de fábrica, uma de cada).
+  - **Loadouts salvos** (por exemplo "Azul" e "Vermelho"): troque entre eles pelo menu; o que está em uso é o que vai para o jogo.
+  - O perfil mostra o loadout, e o dono pode esconder.
+- As telas se adaptam a telas grandes, médias (1200×750, 800×600) e ao celular.
 
 Drops, recompensas de torneio e trade-up continuam funcionando. O modo livre é um interruptor a mais em **Manage → Skins**.
 
