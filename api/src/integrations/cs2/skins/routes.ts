@@ -33,9 +33,12 @@ import {
   type DropTarget,
   MVP_PLACE,
   parseRewards,
+  uidOf,
 } from './skinService';
 import type { Untrusted } from '../../../utils/untrusted';
 import freeRoutes from './freeRoutes';
+import { loadouts } from './loadouts';
+import { agentsOf } from './freeSchema';
 
 const router = Router();
 
@@ -413,7 +416,31 @@ router.get('/players/:steamId', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Skins are off' });
     const profile = await skinService.publicProfile(req.params.steamId);
     if (!profile) return res.status(404).json({ success: false, error: 'No such player' });
-    return res.json({ success: true, ...profile });
+    // Fork (free mode): the loadout the profile shows, unless its owner hid it.
+    let loadout = null;
+    const config = await skinService.config();
+    const uid = config.freeMode ? await uidOf(req.params.steamId) : null;
+    if (uid) {
+      const prefs = await loadouts.prefs(uid);
+      const active = prefs.active
+        ? await db.queryOneAsync<{ name: string; color: string }>(
+            'SELECT name, color FROM cs2_player_saved_loadouts WHERE id = ?',
+            [prefs.active]
+          )
+        : undefined;
+      const agents = await agentsOf(uid);
+      loadout = {
+        show: prefs.showLoadout,
+        name: active?.name ?? '',
+        color: active?.color ?? null,
+        layout: prefs.layout,
+        agents: {
+          ct: agents.find((a) => a.team === 3)?.model ?? null,
+          t: agents.find((a) => a.team === 2)?.model ?? null,
+        },
+      };
+    }
+    return res.json({ success: true, ...profile, loadout });
   } catch (error) {
     return fail(res, error, "Reading a player's skins");
   }

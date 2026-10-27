@@ -33,6 +33,9 @@ import {
   variantOf,
 } from './skinService';
 
+/** The most finishes one "Add skins" request can add. */
+export const ADD_MANY_MAX = 200;
+
 /** CS2 caps a name tag at 20 characters. */
 export const NAMETAG_MAX = 20;
 
@@ -254,6 +257,96 @@ export const freeMode = {
     });
     if (input.equip !== false) await skinService.equip(playerUid, id, input.team ?? 0);
     return id;
+  },
+
+  /**
+   * Add many finishes at once (the "Add skins" page): each one the player does
+   * not have yet goes in as Factory New with a random pattern. With
+   * `equipEmpty`, each new skin is also equipped on the sides where its slot
+   * shows the game's default look. Finishes already owned are skipped: a player
+   * has one copy of each.
+   */
+  async addMany(
+    playerUid: string,
+    itemsRaw: Untrusted,
+    equipEmpty: boolean
+  ): Promise<{ added: number[]; skipped: number }> {
+    if (!Array.isArray(itemsRaw) || itemsRaw.length === 0)
+      throw new SkinError(400, 'Pick at least one skin.');
+    if (itemsRaw.length > ADD_MANY_MAX)
+      throw new SkinError(400, `At most ${ADD_MANY_MAX} skins at a time.`);
+    const catalog = await skinService.catalog();
+    const wanted = new Map<string, CatalogSkin>();
+    for (const raw of itemsRaw) {
+      const item = (raw && typeof raw === 'object' ? raw : {}) as Record<string, Untrusted>;
+      const paintKit = Number(item.paintKit);
+      const found = catalog.find((c) => c.weapon === item.weapon && c.paintKit === paintKit);
+      const model = catalog.find((c) => c.weapon === item.weapon);
+      const plain = paintKit === 0 && model ? vanillaKnife(model.weapon, model.weaponName) : null;
+      const skin = found ?? plain;
+      if (!skin || !WEAPON_DEFINDEX[skin.weapon])
+        throw new SkinError(400, 'A skin is not in the catalogue.');
+      wanted.set(`${skin.weapon}|${skin.paintKit}`, skin);
+    }
+    return withFreeSchema(async () => {
+      const owned = new Set(
+        (
+          await db.queryAsync<{ weapon: string; paint_kit: number }>(
+            'SELECT weapon, paint_kit FROM cs2_player_skins WHERE player_uid = ?',
+            [playerUid]
+          )
+        ).map((r) => `${r.weapon}|${Number(r.paint_kit)}`)
+      );
+      const added: number[] = [];
+      let skipped = 0;
+      for (const [key, skin] of wanted) {
+        if (owned.has(key)) {
+          skipped += 1;
+          continue;
+        }
+        const plain = skin.paintKit === 0;
+        const row = await db.queryOneAsync<{ id: number }>(
+          `INSERT INTO cs2_player_skins
+             (player_uid, weapon, weapon_name, paint_kit, name, rarity, image, float_value, pattern,
+              source, variant, stattrak, nametag, seen)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'free', ?, NULL, NULL, TRUE) RETURNING id`,
+          [
+            playerUid,
+            skin.weapon,
+            skin.weaponName,
+            skin.paintKit,
+            skin.name,
+            skin.rarity,
+            skin.image,
+            plain ? 0 : rollFloat(0, 0.07),
+            plain ? 0 : rollPattern(),
+            variantOf(skin.paintKitName),
+          ]
+        );
+        if (!row?.id) continue;
+        added.push(row.id);
+        if (equipEmpty) await this.equipWhereEmpty(playerUid, row.id, skin.weapon);
+      }
+      return { added, skipped };
+    });
+  },
+
+  /** Equip a skin on the sides of its slot that have nothing on (one-side weapons: their side). */
+  async equipWhereEmpty(playerUid: string, skinId: number, weapon: string): Promise<void> {
+    const slot = slotOf(weapon);
+    const rows = await db.queryAsync<{ team: number }>(
+      'SELECT team FROM cs2_player_loadout WHERE player_uid = ? AND slot = ?',
+      [playerUid, slot]
+    );
+    const teams = new Set(rows.map((r) => Number(r.team)));
+    if (sideOf(weapon) !== null || teams.size === 0) {
+      if (teams.size === 0) await skinService.equip(playerUid, skinId, 0);
+      return;
+    }
+    if (teams.has(0)) return;
+    for (const team of [2, 3] as const) {
+      if (!teams.has(team)) await skinService.equip(playerUid, skinId, team);
+    }
   },
 
   /** Change one of the player's own skins (any source, while free mode is on). */

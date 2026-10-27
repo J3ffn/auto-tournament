@@ -9,6 +9,15 @@
  * PATCH  /me/skins/:id       change one of your skins ({ float?, pattern?, stattrak?, nametag? })
  * DELETE /me/skins/:id       throw away one of your picked skins
  * PUT    /me/agents          set a side's agent ({ team: 2 | 3, model | null })
+ * POST   /me/free/bulk       add many finishes at once ({ items: [{ weapon, paintKit }], equipEmpty? })
+ * GET    /me/loadouts        saved loadouts, the page's preferences, and whether you are on a server
+ * POST   /me/loadouts        a new loadout ({ name, color?, copy? }), switched to at once
+ * PATCH  /me/loadouts/:id    rename or recolour one ({ name?, color? })
+ * DELETE /me/loadouts/:id    throw one away (never the last)
+ * POST   /me/loadouts/:id/activate  switch to it
+ * PUT    /me/layout          the weapons each side's loadout shows ({ layout })
+ * POST   /me/tips            close a notice for good ({ tip })
+ * PUT    /me/profile-loadout whether your profile shows your loadout ({ show })
  */
 
 import { Router, type Request, type Response } from 'express';
@@ -16,6 +25,15 @@ import { db } from '../../../config/database';
 import { log } from '../../../utils/logger';
 import { resolveViewerAccount } from '../../../utils/viewerIdentity';
 import { AGENTS, freeMode, parseCustom, requireFreeMode } from './freeMode';
+import {
+  DEFAULT_LAYOUT,
+  LOADOUT_COLORS,
+  MAX_LOADOUTS,
+  POOLS,
+  STARTING_PISTOLS,
+  loadouts,
+  parseLayout,
+} from './loadouts';
 import freeImages from './freeImages';
 import { SkinError } from './skinService';
 
@@ -220,6 +238,230 @@ router.put('/me/agents', async (req, res) => {
     return res.json({ success: true, mine: await freeMode.myAgents(uid) });
   } catch (error) {
     return fail(res, error, 'Setting an agent');
+  }
+});
+
+/** The loadout page's data: saved loadouts, preferences, and whether the player is on a server. */
+async function loadoutState(uid: string) {
+  const [list, prefs, row] = await Promise.all([
+    loadouts.list(uid),
+    loadouts.prefs(uid),
+    db.queryOneAsync<{ id: string }>('SELECT id FROM players WHERE uid = ?', [uid]),
+  ]);
+  const { onAServer } = await import('../fleet/push/skins');
+  return {
+    loadouts: list,
+    layout: prefs.layout,
+    tips: prefs.tips,
+    showLoadout: prefs.showLoadout,
+    onServer: row ? onAServer(row.id) : false,
+    colors: LOADOUT_COLORS,
+    max: MAX_LOADOUTS,
+    pools: POOLS,
+    startingPistols: STARTING_PISTOLS,
+    defaultLayout: DEFAULT_LAYOUT,
+  };
+}
+
+/**
+ * @openapi
+ * /api/skins/me/free/bulk:
+ *   post:
+ *     tags: [Skins]
+ *     summary: Add many finishes at once (free mode), Factory New
+ *     description: One copy of each finish per player; finishes already owned are skipped. With equipEmpty, each new skin is equipped where its slot has nothing on.
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [items]
+ *             properties:
+ *               items: { type: array, maxItems: 200, items: { type: object, properties: { weapon: { type: string }, paintKit: { type: integer } } } }
+ *               equipEmpty: { type: boolean }
+ *     responses:
+ *       200: { description: "{ added: [skinId], skipped }" }
+ *       400: { description: Nothing picked, too many, or not in the catalogue }
+ *       404: { description: Skins or free mode are off }
+ */
+router.post('/me/free/bulk', async (req, res) => {
+  try {
+    const uid = await player(req, res);
+    if (!uid) return;
+    const result = await freeMode.addMany(uid, req.body?.items, req.body?.equipEmpty === true);
+    if (req.body?.equipEmpty === true && result.added.length) void loadoutChanged(uid);
+    return res.json({ success: true, ...result });
+  } catch (error) {
+    return fail(res, error, 'Adding skins');
+  }
+});
+
+/**
+ * @openapi
+ * /api/skins/me/loadouts:
+ *   get:
+ *     tags: [Skins]
+ *     summary: Your saved loadouts and the loadout page's preferences (free mode)
+ *     responses:
+ *       200: { description: "{ loadouts: [{ id, name, color, active, items, agents }], layout, tips, showLoadout, onServer, colors, max, pools, startingPistols, defaultLayout }" }
+ *   post:
+ *     tags: [Skins]
+ *     summary: Make a new loadout and switch to it
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema: { type: object, required: [name], properties: { name: { type: string, maxLength: 24 }, color: { type: string }, copy: { type: boolean, description: 'false: start empty (default: a copy of the active one)' } } }
+ *     responses:
+ *       200: { description: The page's data, as GET }
+ *       400: { description: No name, or too many loadouts }
+ */
+router.get('/me/loadouts', async (req, res) => {
+  try {
+    const uid = await player(req, res);
+    if (!uid) return;
+    return res.json({ success: true, ...(await loadoutState(uid)) });
+  } catch (error) {
+    return fail(res, error, 'Reading your loadouts');
+  }
+});
+
+router.post('/me/loadouts', async (req, res) => {
+  try {
+    const uid = await player(req, res);
+    if (!uid) return;
+    const body = req.body ?? {};
+    const id = await loadouts.create(uid, { name: body.name, color: body.color, copy: body.copy });
+    void loadoutChanged(uid);
+    return res.json({ success: true, id, ...(await loadoutState(uid)) });
+  } catch (error) {
+    return fail(res, error, 'Making a loadout');
+  }
+});
+
+/**
+ * @openapi
+ * /api/skins/me/loadouts/{id}:
+ *   patch:
+ *     tags: [Skins]
+ *     summary: Rename or recolour a saved loadout
+ *     parameters:
+ *       - { in: path, name: id, required: true, schema: { type: integer } }
+ *     responses:
+ *       200: { description: The page's data }
+ *   delete:
+ *     tags: [Skins]
+ *     summary: Throw a saved loadout away (not the last one)
+ *     parameters:
+ *       - { in: path, name: id, required: true, schema: { type: integer } }
+ *     responses:
+ *       200: { description: The page's data }
+ *       400: { description: It is the last one }
+ */
+router.patch('/me/loadouts/:id', async (req, res) => {
+  try {
+    const uid = await player(req, res);
+    if (!uid) return;
+    await loadouts.update(uid, req.params.id, { name: req.body?.name, color: req.body?.color });
+    return res.json({ success: true, ...(await loadoutState(uid)) });
+  } catch (error) {
+    return fail(res, error, 'Changing a loadout');
+  }
+});
+
+router.delete('/me/loadouts/:id', async (req, res) => {
+  try {
+    const uid = await player(req, res);
+    if (!uid) return;
+    await loadouts.remove(uid, req.params.id);
+    void loadoutChanged(uid);
+    return res.json({ success: true, ...(await loadoutState(uid)) });
+  } catch (error) {
+    return fail(res, error, 'Removing a loadout');
+  }
+});
+
+/**
+ * @openapi
+ * /api/skins/me/loadouts/{id}/activate:
+ *   post:
+ *     tags: [Skins]
+ *     summary: Switch to a saved loadout (the one in use is saved first)
+ *     parameters:
+ *       - { in: path, name: id, required: true, schema: { type: integer } }
+ *     responses:
+ *       200: { description: The page's data }
+ */
+router.post('/me/loadouts/:id/activate', async (req, res) => {
+  try {
+    const uid = await player(req, res);
+    if (!uid) return;
+    await loadouts.activate(uid, req.params.id);
+    void loadoutChanged(uid);
+    return res.json({ success: true, ...(await loadoutState(uid)) });
+  } catch (error) {
+    return fail(res, error, 'Switching loadouts');
+  }
+});
+
+/**
+ * @openapi
+ * /api/skins/me/layout:
+ *   put:
+ *     tags: [Skins]
+ *     summary: The weapons each side's loadout shows, per column (five each, a starting pistol first)
+ *     responses:
+ *       200: { description: "{ layout }" }
+ *       400: { description: Not a valid layout }
+ */
+router.put('/me/layout', async (req, res) => {
+  try {
+    const uid = await player(req, res);
+    if (!uid) return;
+    const layout = parseLayout(req.body?.layout);
+    await loadouts.savePrefs(uid, { layout });
+    return res.json({ success: true, layout });
+  } catch (error) {
+    return fail(res, error, 'Saving the loadout layout');
+  }
+});
+
+/**
+ * @openapi
+ * /api/skins/me/tips:
+ *   post:
+ *     tags: [Skins]
+ *     summary: Close a notice of the inventory pages for good
+ *     responses:
+ *       200: { description: "{ tips }: the notices closed" }
+ */
+router.post('/me/tips', async (req, res) => {
+  try {
+    const uid = await player(req, res);
+    if (!uid) return;
+    return res.json({ success: true, tips: await loadouts.closeTip(uid, req.body?.tip) });
+  } catch (error) {
+    return fail(res, error, 'Closing a notice');
+  }
+});
+
+/**
+ * @openapi
+ * /api/skins/me/profile-loadout:
+ *   put:
+ *     tags: [Skins]
+ *     summary: Whether your profile shows your loadout
+ *     responses:
+ *       200: { description: "{ showLoadout }" }
+ */
+router.put('/me/profile-loadout', async (req, res) => {
+  try {
+    const uid = await player(req, res);
+    if (!uid) return;
+    const show = req.body?.show !== false;
+    await loadouts.savePrefs(uid, { showLoadout: show });
+    return res.json({ success: true, showLoadout: show });
+  } catch (error) {
+    return fail(res, error, 'Saving the profile setting');
   }
 });
 

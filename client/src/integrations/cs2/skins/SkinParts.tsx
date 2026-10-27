@@ -54,7 +54,7 @@ export function VirtualNotice({ compact = false }: { compact?: boolean }) {
         gap: 1.25,
         px: compact ? 1.5 : 2,
         py: compact ? 1 : 1.25,
-        borderRadius: radii.lg,
+        borderRadius: '10px',
         bgcolor: withAlpha(color.warning, 0.1),
         border: `1px solid ${withAlpha(color.warning, 0.5)}`,
         fontSize: '0.8125rem',
