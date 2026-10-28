@@ -15,7 +15,8 @@ import {
  * @tag api
  */
 
-const STEAM_ID = '76561198099990291';
+// A new player each run: a database kept between runs still starts them empty.
+const STEAM_ID = `765611980${String(Date.now()).slice(-8)}`;
 
 test.describe('Skins free mode loadouts: input checks', () => {
   test('a layout is five weapons per column from that side, a starting pistol first', () => {

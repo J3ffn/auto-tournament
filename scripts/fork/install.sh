@@ -32,7 +32,7 @@ if [ "$(docker inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null)" != "tr
   exit 1
 fi
 
-# The platform version: the image tag (sivertio/auto-tournament:3.0.0-beta.216).
+# The platform version: the image tag (sivertio/auto-tournament:3.0.0-beta.232).
 IMAGE="$(docker inspect -f '{{.Config.Image}}' "$CONTAINER")"
 TAG="${IMAGE##*:}"
 [ "$TAG" = "$IMAGE" ] && TAG=""
