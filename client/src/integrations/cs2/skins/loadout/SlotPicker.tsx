@@ -17,6 +17,7 @@ import { announceChange, type OwnedSkin } from '../useSkins';
 import { SIDE_COLOR, type Side } from './model';
 import { catalogName, copyOf, finishOf, panel, sidesOf, slotOfWeapon } from './parts';
 import { Header, PickCard, Segments, type PickerProps } from './PickParts';
+import { CARD_SIZES, CardSizeToggle, useCardSize } from './cardSize';
 import { AgentPicker } from './AgentPicker';
 import { restoreSlot, slotRows } from './undo';
 
@@ -51,6 +52,7 @@ function SkinPicker(p: PickerProps) {
   const whereText = t(`skins.v2.where.${where}`);
   const team = p.shared ? TEAM[target] : 0;
 
+  const [cardSize, setCardSize] = useCardSize();
   const owned = useMemo(
     () => p.inventory.filter((s) => s.slot === p.slotId),
     [p.inventory, p.slotId]
@@ -87,6 +89,14 @@ function SkinPicker(p: PickerProps) {
     if (target === 'both') return sides.includes(2) && sides.includes(3);
     return sides.includes(TEAM[target] as Side);
   };
+  // What is equipped when the panel opens goes first (and stays there while you try others).
+  const [firstId] = useState<number | null>(
+    () => owned.find((s) => sidesOf(s).includes(p.side))?.id ?? null
+  );
+  const first = <T,>(list: T[], idOf: (x: T) => number | null | undefined) => [
+    ...list.filter((x) => idOf(x) === firstId),
+    ...list.filter((x) => idOf(x) !== firstId),
+  ];
   const sub = p.onServer ? t('skins.v2.loadout.appliesNext') : undefined;
   const run = async (work: () => Promise<string>) => {
     if (busy) return;
@@ -160,6 +170,7 @@ function SkinPicker(p: PickerProps) {
           testId="picker-tab"
         />
         <Box sx={{ flex: 1 }} />
+        <CardSizeToggle size={cardSize} onChange={setCardSize} />
         {p.shared && (
           <Segments
             label={t('skins.v2.loadout.equipOn')}
@@ -230,8 +241,8 @@ function SkinPicker(p: PickerProps) {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-          gap: 1.25,
+          gridTemplateColumns: `repeat(auto-fill, minmax(${CARD_SIZES[cardSize].min}px, 1fr))`,
+          gap: CARD_SIZES[cardSize].gap,
         }}
       >
         {tab === 'mine' && (
@@ -241,12 +252,14 @@ function SkinPicker(p: PickerProps) {
             name={t('skins.v2.gameDefault')}
             sub={t('skins.v2.noSkin')}
             on={defaultOn}
+            action="equip"
+            size={cardSize}
             onClick={() => !defaultOn && toDefault()}
             label={t('skins.v2.loadout.useDefault', { where: whereText })}
           />
         )}
         {tab === 'mine' &&
-          owned.map((s) => (
+          first(owned, (s) => s.id).map((s) => (
             <PickCard
               key={s.id}
               image={skinCardUrl(s.imageUrl)}
@@ -259,35 +272,44 @@ function SkinPicker(p: PickerProps) {
               sub={t(`skins.rarity.${s.rarity}`)}
               sides={sidesOf(s)}
               on={isOn(s)}
+              action="equip"
+              size={cardSize}
               onClick={() => !isOn(s) && equipOwned(s)}
               label={t('skins.v2.loadout.equipLabel', { name: s.name, where: whereText })}
             />
           ))}
         {tab === 'cat' &&
-          catalogList.slice(0, shown).map((s) => {
-            const copy = copyOf(p.inventory, s);
-            return (
-              <PickCard
-                key={`${s.weapon}|${s.paintKit}`}
-                image={s.vanilla ? s.image : skinCardUrl(s.image)}
-                tone={s.vanilla ? null : rarityColor[s.rarity]}
-                name={hasModels ? `${s.weaponName} | ${catalogName(s, t)}` : catalogName(s, t)}
-                sub={s.vanilla ? t('skins.v2.noFinish') : t(`skins.rarity.${s.rarity}`)}
-                sides={copy ? sidesOf(copy) : []}
-                on={!!copy && isOn(copy)}
-                badge={badgeFor(copy)}
-                onClick={() => !(copy && isOn(copy)) && addAndEquip(s)}
-                label={
-                  copy
-                    ? t('skins.v2.loadout.equipLabel', {
-                        name: catalogName(s, t),
-                        where: whereText,
-                      })
-                    : t('skins.v2.loadout.addLabel', { name: catalogName(s, t), where: whereText })
-                }
-              />
-            );
-          })}
+          first(catalogList, (c) => copyOf(p.inventory, c)?.id)
+            .slice(0, shown)
+            .map((s) => {
+              const copy = copyOf(p.inventory, s);
+              return (
+                <PickCard
+                  key={`${s.weapon}|${s.paintKit}`}
+                  image={s.vanilla ? s.image : skinCardUrl(s.image)}
+                  tone={s.vanilla ? null : rarityColor[s.rarity]}
+                  name={hasModels ? `${s.weaponName} | ${catalogName(s, t)}` : catalogName(s, t)}
+                  sub={s.vanilla ? t('skins.v2.noFinish') : t(`skins.rarity.${s.rarity}`)}
+                  sides={copy ? sidesOf(copy) : []}
+                  on={!!copy && isOn(copy)}
+                  owned={!!copy}
+                  action={copy ? 'equip' : 'add'}
+                  size={cardSize}
+                  onClick={() => !(copy && isOn(copy)) && addAndEquip(s)}
+                  label={
+                    copy
+                      ? t('skins.v2.loadout.equipLabel', {
+                          name: catalogName(s, t),
+                          where: whereText,
+                        })
+                      : t('skins.v2.loadout.addLabel', {
+                          name: catalogName(s, t),
+                          where: whereText,
+                        })
+                  }
+                />
+              );
+            })}
       </Box>
       {tab === 'mine' && owned.length === 0 && (
         <Typography sx={{ fontSize: '0.8125rem', color: color.ink2 }}>
@@ -317,10 +339,4 @@ function SkinPicker(p: PickerProps) {
       </Typography>
     </Box>
   );
-}
-
-/** A catalogue card's corner mark: "+ Add" when you do not have it, "In inventory" when it is off. */
-function badgeFor(copy: OwnedSkin | null): 'have' | 'add' | null {
-  if (!copy) return 'add';
-  return sidesOf(copy).length ? null : 'have';
 }

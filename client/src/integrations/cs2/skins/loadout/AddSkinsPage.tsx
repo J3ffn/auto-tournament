@@ -34,6 +34,7 @@ import { useFreeCatalog, type FreeCatalogSkin } from '../freeSkins';
 import { skinPaths } from '../paths';
 import { announceChange, useMySkins } from '../useSkins';
 import { catalogName, copyOf } from './parts';
+import { CARD_SIZES, CardSizeToggle, useCardSize } from './cardSize';
 
 const { color } = tokens;
 const PAGE = 120;
@@ -68,6 +69,7 @@ export function AddSkinsPage() {
   const [equipEmpty, setEquipEmpty] = useState(false);
   const [shown, setShown] = useState(PAGE);
   const [busy, setBusy] = useState(false);
+  const [cardSize, setCardSize] = useCardSize();
 
   useEffect(() => {
     document.title = pageTitle(t('skins.v2.add.title'));
@@ -200,6 +202,7 @@ export function AddSkinsPage() {
               </MenuItem>
             ))}
           </Select>
+          <CardSizeToggle size={cardSize} onChange={setCardSize} />
           <FormControlLabel
             control={
               <Checkbox
@@ -285,8 +288,8 @@ export function AddSkinsPage() {
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-              gap: 1.25,
+              gridTemplateColumns: `repeat(auto-fill, minmax(${CARD_SIZES[cardSize].min}px, 1fr))`,
+              gap: CARD_SIZES[cardSize].gap,
             }}
           >
             {list.slice(0, shown).map((s) => {
@@ -318,14 +321,19 @@ export function AddSkinsPage() {
                   }}
                 >
                   <Box
-                    sx={{ height: 86, display: 'grid', placeItems: 'center', bgcolor: color.paper }}
+                    sx={{
+                      height: CARD_SIZES[cardSize].image,
+                      display: 'grid',
+                      placeItems: 'center',
+                      bgcolor: color.paper,
+                    }}
                   >
                     <Box
                       component="img"
                       src={s.vanilla ? s.image : skinCardUrl(s.image)}
                       alt=""
                       loading="lazy"
-                      sx={{ maxWidth: '82%', maxHeight: 70, objectFit: 'contain' }}
+                      sx={{ maxWidth: '84%', maxHeight: '82%', objectFit: 'contain' }}
                     />
                   </Box>
                   <Box

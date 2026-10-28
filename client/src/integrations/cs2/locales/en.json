@@ -1865,8 +1865,7 @@
       "noSkin": "No skin",
       "noFinish": "No finish",
       "equipped": "Equipped",
-      "inInventory": "In inventory",
-      "addShort": "Add",
+      "inInventory": "In your inventory",
       "allModels": "All models",
       "searchSkins": "Search skins…",
       "cancel": "Cancel",
@@ -2041,6 +2040,12 @@
         "show": "Show my loadout on my profile",
         "edit": "Edit",
         "hidden": "Only you see it: your loadout is hidden from your profile."
+      },
+      "cardSize": {
+        "label": "Card size",
+        "s": "Small",
+        "m": "Medium",
+        "l": "Large"
       }
     }
   },

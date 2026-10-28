@@ -35,6 +35,7 @@ import { SIDE_COLOR, TIP_INVENTORY, type Side } from './model';
 import { UndoToast, finishOf, sidesOf, type UndoNotice } from './parts';
 import { useLoadouts } from './useLoadouts';
 import { ItemCard } from './ItemParts';
+import { CARD_SIZES, CardSizeToggle, useCardSize } from './cardSize';
 import { restoreSlot, slotRows } from './undo';
 
 const { color } = tokens;
@@ -73,6 +74,7 @@ export function ItemsPage() {
   });
   const [inspect, setInspect] = useState<number | null>(null);
   const [notice, setNotice] = useState<UndoNotice | null>(null);
+  const [cardSize, setCardSize] = useCardSize();
   const clearNotice = useCallback(() => setNotice(null), []);
 
   useEffect(() => {
@@ -347,6 +349,7 @@ export function ItemsPage() {
                 <MenuItem value="rarity">{t('skins.sort.rarity')}</MenuItem>
                 <MenuItem value="weapon">{t('skins.v2.items.sortWeapon')}</MenuItem>
               </Select>
+              <CardSizeToggle size={cardSize} onChange={setCardSize} />
             </Box>
             <Box
               role="tablist"
@@ -408,8 +411,8 @@ export function ItemsPage() {
               <Box
                 sx={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(142px, 1fr))',
-                  gap: 1.25,
+                  gridTemplateColumns: `repeat(auto-fill, minmax(${CARD_SIZES[cardSize].min - 8}px, 1fr))`,
+                  gap: CARD_SIZES[cardSize].gap,
                 }}
               >
                 {shown.map((s) => (
@@ -419,6 +422,7 @@ export function ItemsPage() {
                     on={s.id === current?.id}
                     star={stars.includes(s.id)}
                     onClick={() => setSelected(s.id)}
+                    size={cardSize}
                   />
                 ))}
               </Box>

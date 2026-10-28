@@ -1865,8 +1865,7 @@
       "noSkin": "Sem skin",
       "noFinish": "Sem acabamento",
       "equipped": "Equipada",
-      "inInventory": "No inventário",
-      "addShort": "Adicionar",
+      "inInventory": "No seu inventário",
       "allModels": "Todos os modelos",
       "searchSkins": "Buscar skins…",
       "cancel": "Cancelar",
@@ -2041,6 +2040,12 @@
         "show": "Mostrar meu loadout no perfil",
         "edit": "Editar",
         "hidden": "Só você vê: o loadout está escondido do seu perfil."
+      },
+      "cardSize": {
+        "label": "Tamanho",
+        "s": "Pequeno",
+        "m": "Médio",
+        "l": "Grande"
       }
     }
   },
