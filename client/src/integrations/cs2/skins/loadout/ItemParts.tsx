@@ -6,6 +6,7 @@ import { skinCardUrl } from '../SkinParts';
 import { rarityColor } from '../rarity';
 import type { OwnedSkin } from '../useSkins';
 import { SIDE_COLOR, type Side } from './model';
+import { CARD_SIZES, type CardSize } from './cardSize';
 import { SideChip, finishOf, sideName, sidesOf } from './parts';
 
 const { color } = tokens;
@@ -109,14 +110,17 @@ export function ItemCard({
   on,
   star,
   onClick,
+  size = 'm',
 }: {
   skin: OwnedSkin;
   on: boolean;
   star: boolean;
   onClick: () => void;
+  size?: CardSize;
 }) {
   const { t } = useModuleTranslation('cs2');
   const sides = sidesOf(skin);
+  const dims = CARD_SIZES[size];
   return (
     <ButtonBase
       onClick={onClick}
@@ -125,6 +129,7 @@ export function ItemCard({
       data-testid="item-card"
       sx={{
         position: 'relative',
+        minWidth: 0,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'stretch',
@@ -137,21 +142,28 @@ export function ItemCard({
         '&:focus-visible': { outline: `2px solid ${color.focus}`, outlineOffset: 2 },
       }}
     >
-      <Box sx={{ height: 84, display: 'grid', placeItems: 'center', bgcolor: color.paper }}>
+      <Box sx={{ height: dims.image, display: 'grid', placeItems: 'center', bgcolor: color.paper }}>
         <Box
           component="img"
           src={skinCardUrl(skin.imageUrl)}
           alt=""
           loading="lazy"
-          sx={{ maxWidth: '82%', maxHeight: 68, objectFit: 'contain' }}
+          sx={{ maxWidth: '84%', maxHeight: '82%', objectFit: 'contain' }}
         />
       </Box>
       <Box sx={{ height: 2, bgcolor: rarityColor[skin.rarity] }} />
-      <Box sx={{ display: 'flex', flexDirection: 'column', p: '7px 10px 9px' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0,
+          p: size === 's' ? '6px 8px 8px' : '7px 10px 9px',
+        }}
+      >
         <Typography noWrap sx={{ fontSize: '0.6875rem', color: color.muted }}>
           {skin.weaponName}
         </Typography>
-        <Typography noWrap sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>
+        <Typography noWrap sx={{ fontSize: dims.name, fontWeight: 600 }}>
           {finishOf(skin, t)}
         </Typography>
       </Box>

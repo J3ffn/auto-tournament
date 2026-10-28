@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Box, ButtonBase, IconButton, Typography } from '@mui/material';
-import { PlusIcon, XIcon } from '@phosphor-icons/react';
+import { BackpackIcon, CheckIcon, PlusIcon, XIcon } from '@phosphor-icons/react';
 import {
   fontDisplay,
   radii,
@@ -11,7 +11,8 @@ import {
 import type { FreeAgent, FreeCatalogSkin } from '../freeSkins';
 import type { OwnedSkin } from '../useSkins';
 import type { Side } from './model';
-import { EquippedOn, sideName, type UndoNotice } from './parts';
+import { SideChip, sideName, type UndoNotice } from './parts';
+import { CARD_SIZES, type CardSize } from './cardSize';
 
 const { color } = tokens;
 
@@ -91,9 +92,11 @@ export function PickCard({
   sub,
   sides = [],
   on,
-  badge = null,
+  owned = false,
+  action = null,
   onClick,
   label,
+  size = 'm',
   tall = false,
   cover = false,
 }: {
@@ -102,23 +105,37 @@ export function PickCard({
   plain?: boolean;
   name: string;
   sub: string;
+  /** The sides it is equipped on: chips at the top, as on My items. */
   sides?: Side[];
+  /** Equipped where the panel equips: marked, and listed first. */
   on: boolean;
-  badge?: 'have' | 'add' | null;
+  /** In the catalogue, one you already have: dimmed, with the inventory mark. */
+  owned?: boolean;
+  /** What a click does, shown as an icon in the corner on hover: add and equip, or equip. */
+  action?: 'add' | 'equip' | null;
   onClick: () => void;
   label: string;
+  size?: CardSize;
   tall?: boolean;
   cover?: boolean;
 }) {
   const { t } = useModuleTranslation('cs2');
+  const dims = CARD_SIZES[size];
+  const dim = owned && !on;
+  const icon = size === 's' ? 22 : 26;
+  let imageOpacity = 1;
+  if (plain) imageOpacity = 0.45;
+  else if (dim) imageOpacity = 0.35;
   return (
     <ButtonBase
       onClick={onClick}
       aria-pressed={on}
       aria-label={label}
       data-testid="picker-card"
+      data-owned={owned ? 'true' : undefined}
       sx={{
         position: 'relative',
+        minWidth: 0,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'stretch',
@@ -126,14 +143,20 @@ export function PickCard({
         overflow: 'hidden',
         bgcolor: color.paper3,
         border: `1px solid ${on ? color.accent : withAlpha(color.ink, 0.07)}`,
+        boxShadow: on ? `0 0 0 3px ${withAlpha(color.accent, 0.15)}` : 'none',
         textAlign: 'left',
-        '&:hover': { borderColor: on ? color.accent : withAlpha(color.ink, 0.22) },
+        '& .pick-img': { transition: 'opacity 140ms, filter 140ms' },
+        '& .pick-action': { opacity: 0, transition: 'opacity 120ms' },
+        '&:hover': { borderColor: on ? color.accent : withAlpha(color.ink, 0.24) },
+        '&:hover .pick-img': { opacity: 1, filter: 'none' },
+        '&:hover .pick-action, &:focus-visible .pick-action': { opacity: 1 },
         '&:focus-visible': { outline: `2px solid ${color.focus}`, outlineOffset: 2 },
       }}
     >
       <Box
         sx={{
-          height: tall ? 120 : 88,
+          position: 'relative',
+          height: tall ? dims.image + 32 : dims.image,
           display: 'grid',
           placeItems: 'center',
           bgcolor: color.paper,
@@ -142,70 +165,95 @@ export function PickCard({
         {image && (
           <Box
             component="img"
+            className="pick-img"
             src={image}
             alt=""
             loading="lazy"
             sx={{
-              maxWidth: cover ? '100%' : '82%',
+              maxWidth: cover ? '100%' : '84%',
               height: cover ? '100%' : 'auto',
               maxHeight: cover ? '100%' : '82%',
               objectFit: cover ? 'cover' : 'contain',
-              filter: plain ? 'grayscale(1) contrast(0.9)' : 'none',
-              opacity: plain ? 0.45 : 1,
+              filter: plain || dim ? 'grayscale(0.85)' : 'none',
+              opacity: imageOpacity,
             }}
           />
         )}
+        {owned && (
+          <Box
+            title={t('skins.v2.inInventory')}
+            aria-hidden
+            sx={{
+              position: 'absolute',
+              top: 6,
+              left: 6,
+              height: 20,
+              px: '5px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: '5px',
+              bgcolor: withAlpha(color.paper, 0.85),
+              color: '#8fd6a4',
+            }}
+          >
+            <BackpackIcon size={13} weight="bold" />
+          </Box>
+        )}
+        {sides.length > 0 && (
+          <Box sx={{ position: 'absolute', top: 6, right: 6, display: 'flex', gap: '3px' }}>
+            {sides.map((s) => (
+              <SideChip key={s} side={s} />
+            ))}
+          </Box>
+        )}
+        {action && !on && (
+          <Box
+            className="pick-action"
+            aria-hidden
+            sx={{
+              position: 'absolute',
+              top: sides.length ? 28 : 6,
+              right: 6,
+              width: icon,
+              height: icon,
+              display: 'grid',
+              placeItems: 'center',
+              borderRadius: '6px',
+              bgcolor: action === 'add' ? color.accent : color.ink,
+              color: action === 'add' ? color.accentInk : color.paper,
+              boxShadow: `0 4px 10px ${color.shadow}`,
+            }}
+          >
+            {action === 'add' ? (
+              <PlusIcon size={14} weight="bold" />
+            ) : (
+              <CheckIcon size={14} weight="bold" />
+            )}
+          </Box>
+        )}
       </Box>
       <Box sx={{ height: 2, bgcolor: tone ?? 'transparent' }} />
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, p: '8px 10px 10px' }}>
-        <Typography noWrap sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0.25,
+          p: size === 's' ? '6px 8px 8px' : '8px 10px 10px',
+          minWidth: 0,
+        }}
+      >
+        <Typography
+          noWrap
+          sx={{ fontSize: dims.name, fontWeight: 600, color: dim ? color.muted : color.ink }}
+        >
           {name}
         </Typography>
-        <Typography noWrap sx={{ fontSize: '0.6875rem', color: tone ?? color.muted }}>
-          {sub}
-        </Typography>
-        <EquippedOn sides={sides} />
+        {size !== 's' && (
+          <Typography noWrap sx={{ fontSize: '0.6875rem', color: tone ?? color.muted }}>
+            {sub}
+          </Typography>
+        )}
       </Box>
-      {badge === 'have' && (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 6,
-            left: 6,
-            px: 0.9,
-            py: '1px',
-            borderRadius: '4px',
-            bgcolor: withAlpha(color.paper, 0.85),
-            color: color.ink2,
-            fontSize: '0.6875rem',
-            fontWeight: 600,
-          }}
-        >
-          {t('skins.v2.inInventory')}
-        </Box>
-      )}
-      {badge === 'add' && (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 6,
-            right: 6,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 0.25,
-            height: 22,
-            px: 0.9,
-            borderRadius: '4px',
-            bgcolor: color.accent,
-            color: color.accentInk,
-            fontSize: '0.6875rem',
-            fontWeight: 700,
-          }}
-        >
-          <PlusIcon size={11} weight="bold" aria-hidden />
-          {t('skins.v2.addShort')}
-        </Box>
-      )}
     </ButtonBase>
   );
 }
