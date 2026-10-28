@@ -19,10 +19,10 @@ Drops, recompensas de torneio e trade-up continuam funcionando. O modo livre é 
 
 ## Antes de instalar
 
-1. **A versão da plataforma precisa ser a mesma do módulo.** O arquivo `VERSION` diz a versão. Por exemplo, `3.0.0-beta.232.free.1` foi feito para a imagem `3.0.0-beta.232`. No `docker-compose.yml`, troque `:next` (ou a versão antiga) pela versão fixa:
+1. **A versão da plataforma precisa ser a mesma do módulo.** O arquivo `VERSION` diz a versão. Por exemplo, `3.0.0-beta.235.free.1` foi feito para a imagem `3.0.0-beta.235`. No `docker-compose.yml`, troque `:next` (ou a versão antiga) pela versão fixa:
 
    ```yaml
-   image: sivertio/auto-tournament:3.0.0-beta.232
+   image: sivertio/auto-tournament:3.0.0-beta.235
    ```
 
    O `install.sh` confere isso e não instala se a imagem for outra.
@@ -84,11 +84,11 @@ bash install.sh auto-tournament --undo
 
 Ele volta o módulo oficial da versão da imagem que está rodando. O banco continua compatível com o módulo oficial. O modo livre só acrescenta uma coluna (`nametag`) e três tabelas (`cs2_player_agents`, `cs2_player_saved_loadouts` e `cs2_player_skin_prefs`), e o oficial ignora todas. Depois de voltar, você pode remover `MODULE_AUTO_UPDATE=false` e voltar para `:next`.
 
-## Atualizar a plataforma (por exemplo, de 216 para 232)
+## Atualizar a plataforma (por exemplo, de 232 para 235)
 
 Cada módulo só funciona com a versão para a qual foi feito. Para trocar de versão, use o pacote novo, gerado do fork já atualizado. Na pasta original da plataforma (a do `docker-compose.yml`):
 
-1. No `docker-compose.yml`, troque a tag da imagem pela nova (`3.0.0-beta.232`).
+1. No `docker-compose.yml`, troque a tag da imagem pela nova (`3.0.0-beta.235`).
 2. No `.env`, troque temporariamente `MODULE_AUTO_UPDATE=false` por `MODULE_AUTO_UPDATE=true`. Assim a plataforma troca o módulo antigo pelo **oficial** da versão nova e roda as migrações dele.
 3. Rode `docker compose pull && docker compose up -d` e espere o site voltar. Em **Manage → Modules**, o CS2 deve estar na versão nova.
 4. Volte o `.env` para `MODULE_AUTO_UPDATE=false` e rode `docker compose up -d` de novo.
